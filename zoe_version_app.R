@@ -18,13 +18,13 @@ ui <- dashboardPage(
                      sidebarMenu(id = "sidebarid",
                       style = "position:fixed; width:auto; overflow-x: clip;",
                       menuItem("Dashboard", tabName="dashboard"),
-                      selectInput("states", "State:",
-                                  choices = c("CA", "NV", "OR")),
+                      selectizeInput("states", "State:",
+                                  choices = state.name, multiple=T),
                       menuItem("Energy Usage", tabName="energy",
-                      sliderInput("number", "Integer:",
+                      sliderInput("number", "Number:",
                                   min = 0, max = 1000,
                                   value = 500),
-                       sliderInput("number", "Decimal:",
+                       sliderInput("integer", "Integer:",
                                   min = 0, max = 1,
                                   value = 0.5, step = 0.1),
                       
@@ -35,7 +35,7 @@ ui <- dashboardPage(
                       menuSubItem("Sub-item 1", tabName="subitem1"),
                       menuSubItem("Sub-item 2", tabName = "subitem2"))
                       )),
-                      dashboardBody("MAP :)"))
+                      dashboardBody())
 
    
 # Define server logic required to draw a histogram
