@@ -30,10 +30,7 @@ ui <- dashboardPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    # output$energyPlot <- renderPlot({
-    #     # generate bins based on input$bins from ui.R
-    #   
-    # })
+
 }
 
 # Run the application 
