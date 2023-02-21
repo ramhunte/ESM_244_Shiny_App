@@ -21,10 +21,10 @@ ui <- dashboardPage(
                       selectInput("states", "State:",
                                   choices = c("CA", "NV", "OR")),
                       menuItem("Energy Usage", tabName="energy",
-                      sliderInput("integer", "Integer:",
+                      sliderInput("number", "Integer:",
                                   min = 0, max = 1000,
                                   value = 500),
-                       sliderInput("decimal", "Decimal:",
+                       sliderInput("number", "Decimal:",
                                   min = 0, max = 1,
                                   value = 0.5, step = 0.1),
                       
@@ -35,7 +35,7 @@ ui <- dashboardPage(
                       menuSubItem("Sub-item 1", tabName="subitem1"),
                       menuSubItem("Sub-item 2", tabName = "subitem2"))
                       )),
-                      dashboardBody())
+                      dashboardBody("MAP :)"))
 
    
 # Define server logic required to draw a histogram
