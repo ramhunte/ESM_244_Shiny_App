@@ -18,13 +18,26 @@ ui <- dashboardPage(
                      sidebarMenu(id = "sidebarid",
                       style = "position:fixed; width:auto; overflow-x: clip;",
                       menuItem("Dashboard", tabName="dashboard"),
-                      menuItem("Energy Usage", tabName="energy"),
+                      menuItem("Energy Usage", tabName="energy",
+                      # Input: Simple integer interval ----
+                      sliderInput("integer", "Integer:",
+                                  min = 0, max = 1000,
+                                  value = 500),
+                      
+                      # Input: Decimal interval with step value ----
+                      sliderInput("decimal", "Decimal:",
+                                  min = 0, max = 1,
+                                  value = 0.5, step = 0.1),
+                      
+                      # Input: Specification of range within an interval ----
+                      sliderInput("range", "Range:",
+                                  min = 1, max = 1000,
+                                  value = c(200,500))),
                       menuItem("Greenhouse Gas Emissions", tabname="emissions",
                       menuSubItem("Sub-item 1", tabName="subitem1"),
                       menuSubItem("Sub-item 2", tabName = "subitem2"))
                       )),
-                      dashboardBody()
-  )
+                      dashboardBody())
 
    
 # Define server logic required to draw a histogram
@@ -35,5 +48,4 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
 
