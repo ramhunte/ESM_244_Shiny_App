@@ -18,18 +18,16 @@ ui <- dashboardPage(
                      sidebarMenu(id = "sidebarid",
                       style = "position:fixed; width:auto; overflow-x: clip;",
                       menuItem("Dashboard", tabName="dashboard"),
+                      selectInput("states", "State:",
+                                  choices = c("CA", "NV", "OR")),
                       menuItem("Energy Usage", tabName="energy",
-                      # Input: Simple integer interval ----
                       sliderInput("integer", "Integer:",
                                   min = 0, max = 1000,
                                   value = 500),
-                      
-                      # Input: Decimal interval with step value ----
-                      sliderInput("decimal", "Decimal:",
+                       sliderInput("decimal", "Decimal:",
                                   min = 0, max = 1,
                                   value = 0.5, step = 0.1),
                       
-                      # Input: Specification of range within an interval ----
                       sliderInput("range", "Range:",
                                   min = 1, max = 1000,
                                   value = c(200,500))),
