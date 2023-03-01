@@ -5,6 +5,7 @@ library(dplyr)
 library(janitor)
 library(here)
 library(leaflet)
+library(ggplot2)
 library(tigris)
 
 # Define UI for application
@@ -36,31 +37,35 @@ ui <- dashboardPage(
    fluidRow(
      tabBox(
        title = "Emissions Maps",
-      tabPanel("Total Emissions", leafletOutput("total_emissions")),
+      tabPanel("Total Emissions", leafletOutput("totalemissions")),
       tabPanel("Emissions Per Capita", "content")
-      ))
+      ),
+     tabBox(
+       title = "Emissions Plots",
+       tabPanel("Total Emissions", plotOutput("plot_emissions")),
+       tabPanel("Emissions per Capita", "content")
+     ))
    )
   )
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  #read_sf(here("cb_2021_us_all_500k", "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp"))
-  st <- states() %>% st_transform('+proj=longlat +datum=WGS84')
+st <- read_sf(here("cb_2021_us_all_500k", "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
+  st_transform('+proj=longlat +datum=WGS84')
+ # st <- states() %>% st_transform('+proj=longlat +datum=WGS84')
   US <-  st %>%
     clean_names() %>%
     mutate(state_name=name)
- # states_3857 <- st_transform(states, 3857)
   states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
   
   
-  output$total_emissions <- renderLeaflet({
+  output$totalemissions <- renderLeaflet({
     date_emissions <-  states_emissions %>% subset(period == input$years)
     pal <- colorNumeric("YlOrRd", date_emissions$value)
-   leaflet() %>%
+   leaflet(date_emissions, options=leafletOptions(doubleClickZoom=F)) %>%
       addTiles() %>%
-     
-      addPolygons(data = date_emissions,
+      addPolygons(layerId = ~unique(geoid),
                   fillColor = ~pal(value),
                   weight = 0.5,
                   fillOpacity = 0.5,
@@ -72,7 +77,17 @@ server <- function(input, output) {
       setView(lng = -96.25, lat = 39.50, zoom = 4)
   })
   
-}
+  ggplot_data <- reactive({
+   states_emissions %>% filter(geoid %in% input$totalemissions_shape_click$id)
+  })
+
+  output$plot_emissions <- renderPlot({
+  ggplot(data=ggplot_data(), aes(period, value)) + geom_line() + theme_minimal()
+  })
+  
+
+  }
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
