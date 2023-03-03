@@ -6,7 +6,7 @@ library(janitor)
 library(here)
 library(leaflet)
 library(ggplot2)
-library(tigris)
+library(plotly)
 
 # Define UI for application
 ui <- dashboardPage(
@@ -37,19 +37,23 @@ ui <- dashboardPage(
    fluidRow(
      tabBox(
        title = "Emissions Maps",
-      tabPanel("Total Emissions", leafletOutput("totalemissions")),
-      tabPanel("Emissions Per Capita", "content")
+      tabPanel("Total Emissions for All Fuels", leafletOutput("totalemissions")),
+      tabPanel("Emissions Per Capita for All Fuels", "content")
       ),
      tabBox(
-       title = "Emissions Plots",
-       tabPanel("Total Emissions", plotOutput("plot_emissions")),
-       tabPanel("Emissions per Capita", "content")
+       title = "Total Emissions",
+       tabPanel("Total Emissions for All Fuels", plotOutput("plot_emissions_state")),
+       tabPanel("Emissions Per Capita for All Fuels", "content")
+     ),
+     tabBox(
+       title = "Emissions by Sector",
+       tabPanel("Total Emissions by Sector", plotOutput("plot_emissions_sector")),
+       tabPanel("Emissions Per Capita for All Fuels", "content")
      ))
    )
   )
 
-
-# Define server logic required to draw a histogram
+#server call
 server <- function(input, output) {
 st <- read_sf(here("cb_2021_us_all_500k", "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   st_transform('+proj=longlat +datum=WGS84')
@@ -57,8 +61,9 @@ st <- read_sf(here("cb_2021_us_all_500k", "cb_2021_us_state_500k", "cb_2021_us_s
   US <-  st %>%
     clean_names() %>%
     mutate(state_name=name)
+  inner_join(US, co2_emissions_clean, by="state_name")
   states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
-  
+  states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
   
   output$totalemissions <- renderLeaflet({
     date_emissions <-  states_emissions %>% subset(period == input$years)
@@ -77,15 +82,25 @@ st <- read_sf(here("cb_2021_us_all_500k", "cb_2021_us_state_500k", "cb_2021_us_s
       setView(lng = -96.25, lat = 39.50, zoom = 4)
   })
   
-  ggplot_data <- reactive({
+  ggplot_state_data <- reactive({
    states_emissions %>% filter(geoid %in% input$totalemissions_shape_click$id)
   })
-
-  output$plot_emissions <- renderPlot({
-  ggplot(data=ggplot_data(), aes(period, value)) + geom_line() + theme_minimal()
-  })
   
+  ggplot_sector_data <- reactive({
+    emissions_sector %>% filter(geoid %in% input$totalemissions_shape_click$id)
+  })
 
+  output$plot_emissions_state <- renderPlot({
+  ggplot(data=ggplot_state_data(), aes(period, value)) + geom_line() + theme_minimal()
+  # emissions_allfuels_plot <- 
+  # emissions_allfuels_plot %>% ggplotly()
+  })
+
+  output$plot_emissions_sector <- renderPlot({
+    ggplot(data=ggplot_sector_data(), aes(period, value), color=sector) + geom_line() + theme_minimal()
+    # emissions_sector_plot <- 
+    # emissions_sector_plot %>% ggplotly()
+  })
   }
 
 
