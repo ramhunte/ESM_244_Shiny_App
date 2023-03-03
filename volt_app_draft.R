@@ -88,13 +88,11 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
 
   output$plot_emissions_state <- renderPlot({
   ggplot(data=ggplot_state_data(), aes(period, value)) + geom_line() + theme_minimal()
-  # emissions_allfuels_plot <- 
   # emissions_allfuels_plot %>% ggplotly()
   })
 
   output$plot_emissions_sector <- renderPlot({
     ggplot(data=ggplot_sector_data(), aes(period, value), color=sector) + geom_line() + theme_minimal()
-    # emissions_sector_plot <- 
     # emissions_sector_plot %>% ggplotly()
   })
   }
