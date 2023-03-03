@@ -20,30 +20,30 @@ ui <- dashboardPage(
                                menuItem("Dashboard", tabName="dashboard"),
                                selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                menuItem("About", tabName = "about", icon = icon("question")),
-                               menuItem("Data visualization", tabName="map_plot"))),
+                               menuItem("Data visualization",
+                                  menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
+                                  menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")))),
   dashboardBody(
     tabItems(
       tabItem(tabName = "about",
                 tags$iframe(src="about_pg.html", width = '100%',  height = 1000,  style = "border:none;")),
 
-      tabItem(tabName = "map_plot",
+      tabItem(tabName = "totalemissions_map_plot",
         box(width=NULL, status="primary", solidHeader=T, title = "Emissions Maps", leafletOutput("totalemissions"),
             br(),
-        plotOutput("plot_emissions_state")))
-        # tabPanel("Emissions Per Capita for All Fuels", "content")
+        plotOutput("plot_emissions_state"))),
+      
+        tabItem(tabName="percapemissions_map_plot",
+          box(width=NULL, status="primary", solidHeader=T, title="Emissions Per Capita for All Fuels",leafletOutput("totalemissions"),
+              br(),
+              plotOutput("plot_emissions_state"))),
 
-      # tabItem(
-      #   title = "Total Emissions",
-      #   tabPanel("Total Emissions for All Fuels", plotOutput("plot_emissions_state")),
-      #   tabPanel("Emissions Per Capita for All Fuels", "content")
-      # ),
-      # tabItem(
-      #   title = "Emissions by Sector",
-      #   tabPanel("Total Emissions by Sector", plotOutput("plot_emissions_sector")),
-      #   tabPanel("Emissions Per Capita for All Fuels", "content")
-      # ))
+      tabItem(
+        box(width=NULL, status="primary", solidHeader=T, title = "Emissions by Sector", plotOutput("plot_emissions_sector"),
+      ))
 
-))
+)
+)
 )
 
 
