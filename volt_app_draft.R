@@ -31,7 +31,10 @@ ui <- dashboardPage(
                                                     value = c(200,500))),
                                menuItem("Greenhouse Gas Emissions", tabname="emissions",
                                         menuSubItem("Sub-item 1", tabName="subitem1"),
-                                        menuSubItem("Sub-item 2", tabName = "subitem2"))
+                                        menuSubItem("Sub-item 2", tabName = "subitem2")),
+                               menuItem("About This App", tabname="about",
+                                        "Stuff")
+                                        
                    )),
   dashboardBody(
    fluidRow(
