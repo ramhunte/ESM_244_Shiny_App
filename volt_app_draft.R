@@ -55,7 +55,7 @@ ui <- dashboardPage(
 
 #server call
 server <- function(input, output) {
-st <- read_sf(here("cb_2021_us_all_500k", "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
+st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   st_transform('+proj=longlat +datum=WGS84')
  # st <- states() %>% st_transform('+proj=longlat +datum=WGS84')
   US <-  st %>%
