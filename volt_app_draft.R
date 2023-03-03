@@ -8,7 +8,7 @@ library(leaflet)
 library(ggplot2)
 library(plotly)
 
-#nacho
+#nachoo
 
 # Define UI for application
 ui <- dashboardPage(
