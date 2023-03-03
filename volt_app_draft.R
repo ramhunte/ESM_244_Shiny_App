@@ -21,7 +21,7 @@ ui <- dashboardPage(
                                menuItem("About", tabName = "about", icon = icon("question")),
                                selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                menuItem("Data visualization", tabName="map_plot"),
-                               menuItem("Fuel Emissions", tab_name="emissions_by_fuel"))),
+                               menuItem("Fuel Emissions", tab_name="emissions_by_fuel", icon=icon("database")))),
   dashboardBody(
     tabItems(
       tabItem(tabName = "about", 
