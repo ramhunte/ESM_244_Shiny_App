@@ -18,8 +18,8 @@ ui <- dashboardPage(
                    sidebarMenu(id = "sidebarid",
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("Dashboard", tabName="dashboard"),
-                               selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                menuItem("About", tabName = "about", icon = icon("question")),
+<<<<<<< HEAD
                                menuItem("Data visualization",
                                   menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                   menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")))),
@@ -41,6 +41,42 @@ ui <- dashboardPage(
       tabItem(
         box(width=NULL, status="primary", solidHeader=T, title = "Emissions by Sector", plotOutput("plot_emissions_sector"),
       ))
+=======
+                               selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
+                               menuItem("Data visualization", tabName="map_plot"),
+                               menuItem("Fuel Emissions", tab_name="emissions_by_fuel"))),
+  dashboardBody(
+    tabItems(
+      tabItem(tabName = "about", 
+                #tags$iframe(src="about_pg.html", width = '100%',  height = 1000,  style = "border:none;")), 
+              p("This ShinyApp explores energy usage by both sector and state throughout the United States. 
+                All energy usage data was recorded from 1970 to 2020 across a variety of different sectors.
+                Emissions are presented in million metric tons of CO2. Specific fuels explored here are petroleum, 
+                natural gas, coal, wind, wood, nuclear, and hydroelectric. Furthermore, here we explore how much 
+                electricity was generated each year by these types of fuels across each state."), 
+              p("Citations"),
+              p("All data was collected from... ")),
+                                      
+      tabItem(tabName = "map_plot",
+        box(width=NULL, status="primary", solidHeader=T, title = "Emissions Maps", leafletOutput("totalemissions"),
+            br(),
+        plotOutput("plot_emissions_state")),
+        # tabPanel("Emissions Per Capita for All Fuels", "content")
+      tabItem(tabName = "emissions_by_fuel"),
+        )
+      
+      
+      # tabItem(
+      #   title = "Total Emissions",
+      #   tabPanel("Total Emissions for All Fuels", plotOutput("plot_emissions_state")),
+      #   tabPanel("Emissions Per Capita for All Fuels", "content")
+      # ),
+      # tabItem(
+      #   title = "Emissions by Sector",
+      #   tabPanel("Total Emissions by Sector", plotOutput("plot_emissions_sector")),
+      #   tabPanel("Emissions Per Capita for All Fuels", "content")
+      # ))
+>>>>>>> 6f5f1b4745281ba67d165dbbfffc53fb50b6ec17
 
 )
 )
