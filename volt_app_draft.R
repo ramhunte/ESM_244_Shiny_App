@@ -42,9 +42,11 @@ ui <- dashboardPage(
       #   tabPanel("Total Emissions by Sector", plotOutput("plot_emissions_sector")),
       #   tabPanel("Emissions Per Capita for All Fuels", "content")
       # ))
-  )
-  )
+
+))
 )
+
+
 
 #server call
 server <- function(input, output) {
