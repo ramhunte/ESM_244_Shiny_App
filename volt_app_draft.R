@@ -16,7 +16,7 @@ ui <- dashboardPage(
   dashboardSidebar(width = 500,
                    sidebarMenu(id = "sidebarid",
                                style = "position:fixed; width:auto; overflow-x: clip;",
-                               menuItem("Dashboard", tabName="dashboard"),
+                               menuItem("Dashboard", tabName="dashboard", icon=icon("dashboard")),
                                selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                # selectizeInput("states", "State Selection:",
                                #                choices = state.name, multiple=T),
@@ -43,7 +43,8 @@ ui <- dashboardPage(
                                         was generated each year by these types of fuels across each state.")
                                         
                    )),
-  dashboardBody(
+ 
+   dashboardBody(
    fluidRow(
      tabBox(
        title = "Emissions Maps",
@@ -62,6 +63,8 @@ ui <- dashboardPage(
      ))
    )
   )
+
+
 
 #server call
 server <- function(input, output) {
