@@ -7,60 +7,44 @@ library(here)
 library(leaflet)
 library(ggplot2)
 library(plotly)
+library(htmltools)
+
 
 # Define UI for application
 ui <- dashboardPage(
-  useShinyalert(),  # Set up shinyalert
-  actionButton("aboutme", "About this Shiny App")
 
   dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=450),
   dashboardSidebar(width = 500,
                    sidebarMenu(id = "sidebarid",
-                               style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
+                               #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("Dashboard", tabName="dashboard"),
                                selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
-                               # selectizeInput("states", "State Selection:",
-                               #                choices = state.name, multiple=T),
-                               menuItem("Energy Usage", tabName="energy",
-                                        sliderInput("number", "Number:",
-                                                    min = 0, max = 1000,
-                                                    value = 500),
-                                        sliderInput("integer", "Integer:",
-                                                    min = 0, max = 1,
-                                                    value = 0.5, step = 0.1),
-                                        
-                                        sliderInput("range", "Range:",
-                                                    min = 1, max = 1000,
-                                                    value = c(200,500))),
-                               menuItem("Greenhouse Gas Emissions", tabname="emissions",
-                                        menuSubItem("Sub-item 1", tabName="subitem1"),
-                                        menuSubItem("Sub-item 2", tabName = "subitem2")),
-                               menuItem("About This App", tabname="about",
-                                        "This ShinyApp explores energy usage by both sector and state throughout the 
-                                        United States. All energy usage data was recorded from 1970 to 2020 across a 
-                                        variety of different sectors. Emissions are presented in million metric tons of 
-                                        CO2. Specific fuels explored here are petroleum, natural gas, coal, wind, wood, 
-                                        nuclear, and hydroelectric. Furthermore, here we explore how much electricity 
-                                        was generated each year by these types of fuels across each state."))),
+                               menuItem("About", tabName = "about", icon = icon("question")),
+                               menuItem("Data visualization", tabName="map_plot"))),
   dashboardBody(
-   fluidRow(
-     tabBox(
-       title = "Emissions Maps",
-      tabPanel("Total Emissions for All Fuels", leafletOutput("totalemissions")),
-      tabPanel("Emissions Per Capita for All Fuels", "content")
-      ),
-     tabBox(
-       title = "Total Emissions",
-       tabPanel("Total Emissions for All Fuels", plotOutput("plot_emissions_state")),
-       tabPanel("Emissions Per Capita for All Fuels", "content")
-     ),
-     tabBox(
-       title = "Emissions by Sector",
-       tabPanel("Total Emissions by Sector", plotOutput("plot_emissions_sector")),
-       tabPanel("Emissions Per Capita for All Fuels", "content")
-     ))
-   )
+    tabItems(
+      tabItem(tabName = "about",
+                tags$iframe(src="about_pg.html", width = '100%',  height = 1000,  style = "border:none;")),
+
+      tabItem(tabName = "map_plot",
+        box(width=NULL, status="primary", solidHeader=T, title = "Emissions Maps", leafletOutput("totalemissions"),
+            br(),
+        plotOutput("plot_emissions_state")))
+        # tabPanel("Emissions Per Capita for All Fuels", "content")
+
+      # tabItem(
+      #   title = "Total Emissions",
+      #   tabPanel("Total Emissions for All Fuels", plotOutput("plot_emissions_state")),
+      #   tabPanel("Emissions Per Capita for All Fuels", "content")
+      # ),
+      # tabItem(
+      #   title = "Emissions by Sector",
+      #   tabPanel("Total Emissions by Sector", plotOutput("plot_emissions_sector")),
+      #   tabPanel("Emissions Per Capita for All Fuels", "content")
+      # ))
   )
+  )
+)
 
 #server call
 server <- function(input, output) {
@@ -74,15 +58,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
   states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
   
-  observeEvent(input$aboutme, {
-    # Show a modal when the button is pressed
-    shinyalert("Hello!", "This ShinyApp explores energy usage by both sector and state throughout the 
-                                        United States. All energy usage data was recorded from 1970 to 2020 across a 
-                                        variety of different sectors. Emissions are presented in million metric tons of 
-                                        CO2. Specific fuels explored here are petroleum, natural gas, coal, wind, wood, 
-                                        nuclear, and hydroelectric. Furthermore, here we explore how much electricity 
-                                        was generated each year by these types of fuels across each state.")
-  })
   
   output$totalemissions <- renderLeaflet({
     date_emissions <-  states_emissions %>% subset(period == input$years)
