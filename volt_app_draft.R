@@ -8,8 +8,6 @@ library(leaflet)
 library(ggplot2)
 library(plotly)
 
-#nacho
-
 # Define UI for application
 ui <- dashboardPage(
   dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=450),
@@ -35,9 +33,7 @@ ui <- dashboardPage(
                                         menuSubItem("Sub-item 1", tabName="subitem1"),
                                         menuSubItem("Sub-item 2", tabName = "subitem2")),
                                menuItem("About This App", tabname="about",
-                                        "Stuff")
-                                        
-                   )),
+                                        "Stuff"))),
   dashboardBody(
    fluidRow(
      tabBox(
