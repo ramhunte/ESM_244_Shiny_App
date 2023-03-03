@@ -35,7 +35,12 @@ ui <- dashboardPage(
                                         menuSubItem("Sub-item 1", tabName="subitem1"),
                                         menuSubItem("Sub-item 2", tabName = "subitem2")),
                                menuItem("About This App", tabname="about",
-                                        "Stuff")
+                                        "This ShinyApp explores energy usage by both sector and state throughout the 
+                                        United States. All energy usage data was recorded from 1970 to 2020 across a 
+                                        variety of different sectors. Emissions are presented in million metric tons of 
+                                        CO2. Specific fuels explored here are petroleum, natural gas, coal, wind, wood, 
+                                        nuclear, and hydroelectric. Furthermore, here we explore how much electricity 
+                                        was generated each year by these types of fuels across each state.")
                                         
                    )),
   dashboardBody(
