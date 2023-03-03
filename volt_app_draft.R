@@ -10,10 +10,13 @@ library(plotly)
 
 # Define UI for application
 ui <- dashboardPage(
+  useShinyalert(),  # Set up shinyalert
+  actionButton("aboutme", "About this Shiny App")
+
   dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=450),
   dashboardSidebar(width = 500,
                    sidebarMenu(id = "sidebarid",
-                               style = "position:fixed; width:auto; overflow-x: clip;",
+                               style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("Dashboard", tabName="dashboard"),
                                selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                # selectizeInput("states", "State Selection:",
@@ -33,7 +36,12 @@ ui <- dashboardPage(
                                         menuSubItem("Sub-item 1", tabName="subitem1"),
                                         menuSubItem("Sub-item 2", tabName = "subitem2")),
                                menuItem("About This App", tabname="about",
-                                        "Stuff"))),
+                                        "This ShinyApp explores energy usage by both sector and state throughout the 
+                                        United States. All energy usage data was recorded from 1970 to 2020 across a 
+                                        variety of different sectors. Emissions are presented in million metric tons of 
+                                        CO2. Specific fuels explored here are petroleum, natural gas, coal, wind, wood, 
+                                        nuclear, and hydroelectric. Furthermore, here we explore how much electricity 
+                                        was generated each year by these types of fuels across each state."))),
   dashboardBody(
    fluidRow(
      tabBox(
@@ -65,6 +73,16 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   inner_join(US, co2_emissions_clean, by="state_name")
   states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
   states_emissions <- inner_join(US, emissions_all_fuels, by="state_name")
+  
+  observeEvent(input$aboutme, {
+    # Show a modal when the button is pressed
+    shinyalert("Hello!", "This ShinyApp explores energy usage by both sector and state throughout the 
+                                        United States. All energy usage data was recorded from 1970 to 2020 across a 
+                                        variety of different sectors. Emissions are presented in million metric tons of 
+                                        CO2. Specific fuels explored here are petroleum, natural gas, coal, wind, wood, 
+                                        nuclear, and hydroelectric. Furthermore, here we explore how much electricity 
+                                        was generated each year by these types of fuels across each state.")
+  })
   
   output$totalemissions <- renderLeaflet({
     date_emissions <-  states_emissions %>% subset(period == input$years)
