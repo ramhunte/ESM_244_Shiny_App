@@ -15,7 +15,7 @@ ui <- dashboardPage(
 
   dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=450),
   dashboardSidebar(width = 500,
-                   sidebarMenu(id = "sidebarid",
+                   sidebarMenu(id = "sidebarid", 
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("Dashboard", tabName="dashboard"),
                                menuItem("About", tabName = "about", icon = icon("question")),
@@ -26,6 +26,7 @@ ui <- dashboardPage(
     tabItems(
       tabItem(tabName = "about", 
                 #tags$iframe(src="about_pg.html", width = '100%',  height = 1000,  style = "border:none;")), 
+             
               p("This ShinyApp explores energy usage by both sector and state throughout the United States. 
                 All energy usage data was recorded from 1970 to 2020 across a variety of different sectors.
                 Emissions are presented in million metric tons of CO2. Specific fuels explored here are petroleum, 
@@ -39,8 +40,12 @@ ui <- dashboardPage(
             br(),
         plotOutput("plot_emissions_state")),
         # tabPanel("Emissions Per Capita for All Fuels", "content")
-      tabItem(tabName = "emissions_by_fuel"),
+        
+      tabItem(tabName = "emissions_by_fuel",
+      box( title="Emissions by Fuel", plotOutput("plot_emissions_sector")
+          )
         )
+      )
       
       
       # tabItem(
