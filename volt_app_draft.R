@@ -9,7 +9,6 @@ library(ggplot2)
 library(plotly)
 library(htmltools)
 
-
 # Define UI for application
 ui <- dashboardPage(
 
