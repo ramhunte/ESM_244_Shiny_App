@@ -20,7 +20,16 @@ ui <- dashboardPage(
                                menuItem("About", tabName = "about", icon = icon("question")),
                                selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                menuItem("Data visualization", tabName="map_plot"),
-                               menuItem("Fuel Emissions", tab_name="emissions_by_fuel", icon=icon("database")))),
+                               menuItem("Fuel Emissions", tabName="emissions_by_fuel"
+                                        #checkboxGroupInput(inputId = "years",
+                                                          # label = "Choose year:",
+                                                           #choices = unique(emissions_total$fuel_name))
+                                        
+                                        
+                                        
+                                        )
+                               )
+                   ),
   dashboardBody(
     tabItems(
       tabItem(tabName = "about", 
@@ -32,7 +41,7 @@ ui <- dashboardPage(
                 natural gas, coal, wind, wood, nuclear, and hydroelectric. Furthermore, here we explore how much 
                 electricity was generated each year by these types of fuels across each state."), 
               p("All data was collected from the U.S. Energy Information Administration (EIA) and the Department of Energy (DOE)"),
-              p(""),
+           
               p("Citations: Total energy annual data - U.S. energy information administration (EIA). 
                 Total Energy Annual Data - U.S. Energy Information Administration (EIA). 
                 Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ ")),
@@ -40,14 +49,14 @@ ui <- dashboardPage(
       tabItem(tabName = "map_plot",
         box(width=NULL, status="primary", solidHeader=T, title = "Emissions Maps", leafletOutput("totalemissions"),
             br(),
-        plotOutput("plot_emissions_state")),
-        # tabPanel("Emissions Per Capita for All Fuels", "content")
+        plotOutput("plot_emissions_state"))),
+        # tabPanel("Emissions Per Capita for All Fuels", "content"),
         
       tabItem(tabName = "emissions_by_fuel",
-      box( title="Emissions by Fuel", plotOutput("plot_emissions_sector")
+      box( title="Emissions by Fuel", plotOutput("plot_fuel_emissions")
           )
         )
-      )
+      
       
       
       # tabItem(
@@ -68,6 +77,32 @@ ui <- dashboardPage(
 
 #server call
 server <- function(input, output) {
+  
+  
+  
+  ggplot_fuel_data <- reactive({
+    emissions_total  
+     #%>%  filter(fuel_name %in% input$fuel_name)
+  })
+  
+  output$plot_fuel_emissions <- renderPlot({
+    ggplot(data=ggplot_fuel_data(), aes(x=period, y=value, color = fuel_name)) + geom_point() + theme_minimal()
+    
+  })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   st_transform('+proj=longlat +datum=WGS84')
  # st <- states() %>% st_transform('+proj=longlat +datum=WGS84')
@@ -115,7 +150,17 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     # emissions_sector_plot <- 
     # emissions_sector_plot %>% ggplotly()
   })
+  
+
+  
+  
   }
+
+
+
+
+
+
 
 
 # Run the application 
