@@ -31,8 +31,11 @@ ui <- dashboardPage(
                 Emissions are presented in million metric tons of CO2. Specific fuels explored here are petroleum, 
                 natural gas, coal, wind, wood, nuclear, and hydroelectric. Furthermore, here we explore how much 
                 electricity was generated each year by these types of fuels across each state."), 
-              p("Citations"),
-              p("All data was collected from... ")),
+              p("All data was collected from the U.S. Energy Information Administration (EIA) and the Department of Energy (DOE)"),
+              p(""),
+              p("Citations: Total energy annual data - U.S. energy information administration (EIA). 
+                Total Energy Annual Data - U.S. Energy Information Administration (EIA). 
+                Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ ")),
                                       
       tabItem(tabName = "map_plot",
         box(width=NULL, status="primary", solidHeader=T, title = "Emissions Maps", leafletOutput("totalemissions"),
