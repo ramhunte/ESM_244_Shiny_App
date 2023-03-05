@@ -19,29 +19,35 @@ library(dplyr)
 # 
 # write.csv(x=emissions_data , file="/Users/zoerennie/co2_emissions_aggregates.csv")
 
+###read in data
+#emissions data - includes sector, fuel type, state, and emissions in metric tons CO2
 co2_emissions <- read_csv(here("data", "co2_emissions_aggregates.csv"))
+#total energy consumed by residential, commercial, and industrial sectors
 energy_res_com_ind <- read_csv(here("data", "MER_T02_01A.csv"))
+#total energy consumed by transportation and electric power sectors
 energy_transport_elec <- read_csv(here("data", "MER_T02_01B.csv"))
+#total electric generation by state by year - includes energy source
 power_generation_states <- read_csv(here("data", "annual_generation_states.csv"))
+#census population data from 1970-2021
+population_US <-  read_csv(here("data", "population_data.csv"))
 
-#View(co2_emissions)
+#adding per capita calculations to emissions data
+emissions_complete_data <- inner_join(co2_emissions, population_US) %>%
+                            mutate(emissions_per_capita_value=value/population*10^6) %>%
+                            mutate(emissions_per_capita_units='metric tons of CO2') %>%
+                            clean_names()
 
-#total CO2 from all sectors by year, fuel, state
-emissions_total <- co2_emissions %>% 
-                   clean_names() %>% 
+#total CO2 from all sectors by year, fuel type, and state
+emissions_total_allsectors <- emissions_complete_data %>%
                     filter(sector_name %in% "Total carbon dioxide emissions from all sectors") %>%
-                    group_by(state_name, fuel_name, period) %>%
-                    summarize(value)
+                    group_by(state_name, fuel_name, period, value_units, emissions_per_capita_units) %>%
+                    summarise(across(c(value, emissions_per_capita_value)))
+
 #CO2 emissions by state, sector, and year
-emissions_sector <- co2_emissions %>% 
-  clean_names() %>% 
+emissions_persector <- emissions_complete_data %>%
   filter(sector_name != "Total carbon dioxide emissions from all sectors") %>%
   group_by(state_name, sector_name, period) %>%
   summarize(value)
-#total CO2 emissions from all fuels for every state per year
-emissions_all_fuels <- emissions_total %>% filter(fuel_name %in% "All Fuels")
-#look into changing the data structure to avoid having more than one shape data thing
-#View(emissions_total)
-
-co2_emissions_clean <- co2_emissions %>% clean_names()
+#cumulative CO2 emissions from all fuels for every state per year
+emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All Fuels")
 
