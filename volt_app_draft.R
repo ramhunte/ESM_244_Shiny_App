@@ -24,7 +24,7 @@ ui <- dashboardPage(
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
                                menuItem("Fuel Emissions", 
                                         menuSubItem(
-                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state)),
+                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name)),
                                         menuSubItem("Fuel Type", tabName="emissions_by_fuel")
                                         
                                         
@@ -60,7 +60,7 @@ ui <- dashboardPage(
                   plotOutput("plot_percapemissions_state"))),
 
       tabItem(tabName = "emissions_by_fuel",
-      box(title="Emissions by Fuel", plotOutput("plot_fuel_emissions")))
+         box(title="Emissions by Fuel", plotOutput("plot_fuel_emissions")))
       
     ))
 )
@@ -91,8 +91,8 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   })
   ggplot_fuel_data <- reactive({
     emissions_total_allsectors %>% 
-      subset(state %in% input$pick_state)
-    # %>% filter(fuel_name %in% input$fuel_name)
+     subset(state_name %in% input$pick_state)
+    
   })
   date_emissions <- reactive({
     states_emissions %>% subset(period == input$years)
