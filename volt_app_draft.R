@@ -134,18 +134,30 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   
 
   output$plot_totalemissions_state <- renderPlot({
-    ggplot(data=ggplot_totalstate_data(), aes(period, value)) + geom_line() + theme_minimal()
+    ggplot(data=ggplot_totalstate_data(), 
+           aes(period, value)) +
+      geom_line() +
+      theme_minimal()+
+      ylab("Total state CO2 emissions (MMT)")
     # emissions_allfuels_plot <- 
     # emissions_allfuels_plot %>% ggplotly()
   })
   output$plot_percapemissions_state <- renderPlot({
-    ggplot(data=ggplot_percapstate_data(), aes(period, emissions_per_capita_value)) + geom_line() + theme_minimal()
+    ggplot(data=ggplot_percapstate_data(), 
+           aes(period, emissions_per_capita_value)) + 
+      geom_line() + 
+      theme_minimal()+
+      ylab("CO2 emissions per capita (MT)")
     # emissions_allfuels_plot <- 
     # emissions_allfuels_plot %>% ggplotly()
   })
   
   output$plot_emissions_sector <- renderPlot({
-    ggplot(data=ggplot_sector_data(), aes(period, value), color=sector) + geom_line() + theme_minimal()
+    ggplot(data=ggplot_sector_data(),
+           aes(period, value), color=sector) +
+      geom_line() +
+      theme_minimal()+
+      ylab("CO2 Emissions per capita")
     # emissions_sector_plot <- 
     # emissions_sector_plot %>% ggplotly()
   })
