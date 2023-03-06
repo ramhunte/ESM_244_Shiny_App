@@ -22,7 +22,7 @@ ui <- dashboardPage(
                                           selectInput("years", label="Select year", choices = 1970:2020, selected = 2020)),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
-                               menuItem("Fuel Emissions", 
+                               menuItem("Emissions By Fuel Type Over Time", 
                                         menuSubItem(
                                           selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name)),
                                         menuSubItem("Fuel Type", tabName="emissions_by_fuel")
@@ -60,7 +60,7 @@ ui <- dashboardPage(
                   plotOutput("plot_percapemissions_state"))),
 
       tabItem(tabName = "emissions_by_fuel",
-         box(title="Emissions by Fuel", plotOutput("plot_fuel_emissions")))
+         box(width=NULL, status="primary", solidHeader=T, title="Emissions by Fuel", plotOutput("plot_fuel_emissions")))
       
     ))
 )
@@ -153,7 +153,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   output$plot_fuel_emissions <- renderPlot({
     ggplot(data=ggplot_fuel_data(), 
            aes(x=period, y=value, color = fuel_name)) + 
-      geom_point() + 
+      geom_line() + 
       theme_minimal()+
       labs(color = "Fuel Type")+
       ylab("CO2 Emissions (MMT)")
