@@ -40,7 +40,7 @@ ui <- dashboardPage(
               #tags$iframe(src="about_pg.html", width = '100%',  height = 1000,  style = "border:none;")), 
                 p("This ShinyApp explores energy usage by both sector and state throughout the United States. 
                 All energy usage data was recorded from 1970 to 2020 across a variety of different sectors.
-                Emissions are presented in million metric tons of CO2. Specific fuels explored here are petroleum, 
+                Emissions are presented in million metric tons of CO2 (MMT CO2). Specific fuels explored here are petroleum, 
                 natural gas, coal, wind, wood, nuclear, and hydroelectric. Furthermore, here we explore how much 
                 electricity was generated each year by these types of fuels across each state."), 
               p("All data was collected from the U.S. Energy Information Administration (EIA) and the Department of Energy (DOE)"),
@@ -151,7 +151,12 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   })
   
   output$plot_fuel_emissions <- renderPlot({
-    ggplot(data=ggplot_fuel_data(), aes(x=period, y=value, color = fuel_name)) + geom_point() + theme_minimal()
+    ggplot(data=ggplot_fuel_data(), 
+           aes(x=period, y=value, color = fuel_name)) + 
+      geom_point() + 
+      theme_minimal()+
+      labs(color = "Fuel Type")+
+      ylab("CO2 Emissions (MMT)")
     
   })
 }
