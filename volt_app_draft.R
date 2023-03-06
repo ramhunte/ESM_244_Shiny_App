@@ -21,11 +21,17 @@ ui <- dashboardPage(
                                         menuSubItem(selectInput("years", label="Select year", choices = 1970:2020, selected = 2020)),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
-                               menuItem("Fuel Emissions", tabName="emissions_by_fuel")
-                                        # checkboxGroupInput(inputId = "years",
-                                        # label = "Choose year:",
-                                        # choices = unique(emissions_total_allsectors$fuel_name))
-                                        )),
+                               menuItem("Fuel Emissions", 
+                                        menuSubItem(selectInput("state", label="Select state", choices = Alabama:Wyoming, selected = Alabama)),
+                                        menuSubItem("Type", tabName="emissions_by_fuel")
+                                        
+                                        
+                                        )
+                               )
+                   ),
+                                        
+                                       
+                                       
   dashboardBody(
     tabItems(
       tabItem(tabName = "about", 
