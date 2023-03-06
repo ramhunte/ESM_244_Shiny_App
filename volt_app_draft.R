@@ -18,12 +18,14 @@ ui <- dashboardPage(
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("About our ShinyApp", tabName = "about"),
                                menuItem("Emissions By State Over Time",
-                                        menuSubItem(selectInput("years", label="Select year", choices = 1970:2020, selected = 2020)),
+                                        menuSubItem(
+                                          selectInput("years", label="Select year", choices = 1970:2020, selected = 2020)),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
                                menuItem("Fuel Emissions", 
-                                        menuSubItem(selectInput("state", label="Select state", choices = Alabama:Wyoming, selected = Alabama)),
-                                        menuSubItem("Type", tabName="emissions_by_fuel")
+                                        menuSubItem(
+                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state)),
+                                        menuSubItem("Fuel Type", tabName="emissions_by_fuel")
                                         
                                         
                                         )
@@ -88,12 +90,14 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     emissions_sector %>% filter(geoid %in% input$totalemissions_shape_click$id)
   })
   ggplot_fuel_data <- reactive({
-    emissions_total_allsectors 
+    emissions_total_allsectors %>% 
+      subset(state %in% input$pick_state)
     # %>% filter(fuel_name %in% input$fuel_name)
   })
   date_emissions <- reactive({
     states_emissions %>% subset(period == input$years)
-  })
+  })   
+  
 ######################
   
   output$totalemissions <- renderLeaflet({
