@@ -24,8 +24,6 @@ ui <- dashboardPage(
                                menuItem("Fuel Emissions", 
                                         menuSubItem(selectInput("state", label="Select state", choices = Alabama:Wyoming, selected = Alabama)),
                                         menuSubItem("Type", tabName="emissions_by_fuel")
-                                        
-                                        
                                         )
                                )
                    ),
@@ -91,9 +89,11 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     emissions_total_allsectors 
     # %>% filter(fuel_name %in% input$fuel_name)
   })
+  
   date_emissions <- reactive({
     states_emissions %>% subset(period == input$years)
   })
+  
 ######################
   
   output$totalemissions <- renderLeaflet({
