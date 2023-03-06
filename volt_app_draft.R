@@ -17,8 +17,8 @@ ui <- dashboardPage(
                    sidebarMenu(id = "sidebarid", 
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("About our ShinyApp", tabName = "about"),
-                               selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
                                menuItem("Emissions By State Over Time",
+                                        menuSubItem(selectInput("years", label="Select year", choices = 1970:2020, selected = 2020)),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
                                menuItem("Fuel Emissions", tabName="emissions_by_fuel")
