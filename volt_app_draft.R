@@ -138,7 +138,8 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
            aes(period, value)) +
       geom_line() +
       theme_minimal()+
-      ylab("Total state CO2 emissions (MMT)")
+      ylab("Total state CO2 emissions (MMT)")+
+      xlab("Year")
     # emissions_allfuels_plot <- 
     # emissions_allfuels_plot %>% ggplotly()
   })
@@ -147,7 +148,8 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
            aes(period, emissions_per_capita_value)) + 
       geom_line() + 
       theme_minimal()+
-      ylab("CO2 emissions per capita (MT)")
+      ylab("CO2 emissions per capita (MT)")+
+      xlab("Year")
     # emissions_allfuels_plot <- 
     # emissions_allfuels_plot %>% ggplotly()
   })
