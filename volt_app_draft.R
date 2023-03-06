@@ -168,7 +168,8 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       geom_line() + 
       theme_minimal()+
       labs(color = "Fuel Type")+
-      ylab("CO2 Emissions (MMT)")
+      ylab("CO2 Emissions (MMT)") +
+      xlab("Year")
     
   })
 }
