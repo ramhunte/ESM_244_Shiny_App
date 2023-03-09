@@ -11,11 +11,11 @@ library(htmltools)
 
 source('data_cleaning.R')
 
-# Define UI for application
+########## UI ################
 ui <- dashboardPage(
   
   dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=450),
-  dashboardSidebar(width = 500,
+  dashboardSidebar(width = 275,
                    sidebarMenu(id = "sidebarid", 
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("About our ShinyApp", tabName = "about"),
@@ -50,12 +50,15 @@ ui <- dashboardPage(
               p("Citations: Total energy annual data - U.S. energy information administration (EIA). 
                 Total Energy Annual Data - U.S. Energy Information Administration (EIA). 
                 Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ ")),
-                                      
+                      
+### MAP: Total Emissions by State 
       tabItem(tabName = "totalemissions_map_plot",
-        box(width=NULL, status="primary", solidHeader=T, title = "Total Emissions Maps", leafletOutput("totalemissions"),
+        box(width=NULL, status="primary", solidHeader=T, title = "Total Emissions Maps", 
+            leafletOutput("totalemissions"),
             br(),
         plotOutput("plot_totalemissions_state"))),
-      
+
+### MAP: Per Capita Emissions 
       tabItem(tabName = "percapemissions_map_plot",
               box(width=NULL, status="primary", solidHeader=T, title = "Per Capita Emissions Maps", leafletOutput("percapemissions"),
                   br(),
@@ -69,7 +72,7 @@ ui <- dashboardPage(
 
 
 
-#server call
+########## SERVER ################
 server <- function(input, output) {
 st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   st_transform('+proj=longlat +datum=WGS84')
