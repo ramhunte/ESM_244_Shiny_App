@@ -24,8 +24,7 @@ ui <- dashboardPage(
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
                                menuItem("Emissions By Fuel Type Over Time", 
-                                        menuSubItem(
-                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name)),
+                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name),
                                         menuSubItem("Fuel Type", tabName="emissions_by_fuel")
                                         
                                         
