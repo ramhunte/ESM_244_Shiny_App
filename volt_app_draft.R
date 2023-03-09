@@ -20,11 +20,11 @@ ui <- dashboardPage(
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("About our ShinyApp", tabName = "about"),
                                menuItem("Emissions By State Over Time",
-                                          selectInput("years", label="Select year", choices = 1970:2020, selected = 2020),
+                                          selectInput("years", label="Select year", choices = 1970:2020, selected = 2020, width = 110),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
                                menuItem("Emissions By Fuel Type Over Time", 
-                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name),
+                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name, selected = "California", width = 150),
                                         menuSubItem("Fuel Type", tabName="emissions_by_fuel")
                                         
                                         
