@@ -9,6 +9,8 @@ library(ggplot2)
 library(plotly)
 library(htmltools)
 
+source('data_cleaning.R')
+
 # Define UI for application
 ui <- dashboardPage(
   
