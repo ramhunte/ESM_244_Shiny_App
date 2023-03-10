@@ -8,26 +8,31 @@ library(leaflet)
 library(ggplot2)
 library(plotly)
 library(htmltools)
+library(tictoc)
 
-source('data_cleaning.R')
-
-########## UI ################
+# Define UI for application
 ui <- dashboardPage(
   
-  dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=450),
-  dashboardSidebar(width = 275,
+  dashboardHeader(title  = "Energy Usage and Greenhouse Gas Emissions", titleWidth=400),
+  dashboardSidebar(width = 400,
                    sidebarMenu(id = "sidebarid", 
                                #style = "position:fixed; width:auto; overflow-x: clip; white-space: normal;",
                                menuItem("About our ShinyApp", tabName = "about"),
                                menuItem("Emissions By State Over Time",
-                                          selectInput("years", label="Select year", choices = 1970:2020, selected = 2020, width = 110),
+                                        menuSubItem(
+                                           selectInput("years", label="Select year", choices = 1970:2020, selected = 2020)
+                                           ),
+                                        menuSubItem(
+                                          sliderInput("rangeyears", label = "Select range of years", min = 1970, max = 2020, value = c(2018, 2020), sep="")
+                                          ),
+                                        p("Click on state to generate graph of emissions over time"),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
+
                                menuItem("Emissions By Fuel Type Over Time", 
-                                          selectInput("pick_state", label="Select state", choices =  emissions_total_allsectors$state_name, selected = "California", width = 150),
+                                        menuSubItem(
+                                          selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name))),
                                         menuSubItem("Fuel Type", tabName="emissions_by_fuel")
-                                        
-                                        
                                         )
                                )
                    ),
@@ -48,15 +53,12 @@ ui <- dashboardPage(
               p("Citations: Total energy annual data - U.S. energy information administration (EIA). 
                 Total Energy Annual Data - U.S. Energy Information Administration (EIA). 
                 Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ ")),
-                      
-### MAP: Total Emissions by State 
+                                      
       tabItem(tabName = "totalemissions_map_plot",
-        box(width=NULL, status="primary", solidHeader=T, title = "Total Emissions Maps", 
-            leafletOutput("totalemissions"),
+        box(width=NULL, status="primary", solidHeader=T, title = "Total Emissions Maps", leafletOutput("totalemissions"),
             br(),
         plotOutput("plot_totalemissions_state"))),
-
-### MAP: Per Capita Emissions 
+      
       tabItem(tabName = "percapemissions_map_plot",
               box(width=NULL, status="primary", solidHeader=T, title = "Per Capita Emissions Maps", leafletOutput("percapemissions"),
                   br(),
@@ -64,17 +66,15 @@ ui <- dashboardPage(
 
       tabItem(tabName = "emissions_by_fuel",
          box(width=NULL, status="primary", solidHeader=T, title="Emissions by Fuel", plotOutput("plot_fuel_emissions")))
-      
     ))
 )
 
 
 
-########## SERVER ################
+#server call
 server <- function(input, output) {
 st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   st_transform('+proj=longlat +datum=WGS84')
- # st <- states() %>% st_transform('+proj=longlat +datum=WGS84')
   US <-  st %>%
     clean_names() %>%
     mutate(state_name=name)
@@ -82,39 +82,51 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
 
 #####################
   ggplot_totalstate_data <- reactive({
-    states_emissions %>% filter(geoid %in% input$totalemissions_shape_click$id)
+    states_emissions %>%
+    filter(state_name %in% input$totalemissions_shape_click$id & period %in% input$rangeyears[1]:input$rangeyears[2])
   })
   
+  
   ggplot_percapstate_data <- reactive({
-    states_emissions %>% filter(geoid %in% input$percapemissions_shape_click$id)
+    states_emissions %>% filter(state_name %in% input$percapemissions_shape_click$id)
   })
   
   ggplot_sector_data <- reactive({
-    emissions_sector %>% filter(geoid %in% input$totalemissions_shape_click$id)
+    emissions_sector %>% filter(state_name %in% input$totalemissions_shape_click$id)
   })
+  
   ggplot_fuel_data <- reactive({
     emissions_total_allsectors %>% 
      subset(state_name %in% input$pick_state)
-    
   })
+  
   date_emissions <- reactive({
-    states_emissions %>% subset(period == input$years)
-  })   
+    tic()
+     out <-  states_emissions %>% 
+      # filter(period == input$years)
+    filter(period %in% input$rangeyears[1]:input$rangeyears[2]) %>%
+    group_by(state_name) %>%
+     # tic()
+     # summarise(avg_change = mean(c(NA, diff(value)), na.rm = TRUE))
+     # toc()
+     return(out)
+  })
+  
   
 ######################
-  
+
   output$totalemissions <- renderLeaflet({
-    pal <- colorNumeric("YlOrRd", date_emissions()$value)
+    pal <- colorNumeric("YlOrRd", date_emissions()$avg_change)
     leaflet(date_emissions(), options=leafletOptions(doubleClickZoom=F)) %>%
       addTiles() %>%
-      addPolygons(layerId = ~unique(geoid),
-                  fillColor = ~pal(value),
+      addPolygons(layerId = ~unique(state_name),
+                  fillColor = ~pal(avg_change),
                   weight = 0.5,
                   fillOpacity = 0.5,
                   smoothFactor = 0.2,
-                  label = ~value,
+                  label = ~avg_change,
                   stroke = T, color = "black") %>%
-      addLegend("bottomright", pal = pal, values = date_emissions()$value,
+      addLegend("bottomright", pal = pal, values = date_emissions()$avg_change,
                 title = "Carbon emissions", labFormat = labelFormat(suffix = "mmt")) %>%
       setView(lng = -96.25, lat = 39.50, zoom = 4)
   })
@@ -123,7 +135,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     pal <- colorNumeric("YlOrRd", date_emissions()$emissions_per_capita_value)
     leaflet(date_emissions(), options=leafletOptions(doubleClickZoom=F)) %>%
       addTiles() %>%
-      addPolygons(layerId = ~unique(geoid),
+      addPolygons(layerId = ~unique(state_name),
                   fillColor = ~pal(emissions_per_capita_value),
                   weight = 0.5,
                   fillOpacity = 0.5,
@@ -140,10 +152,13 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     ggplot(data=ggplot_totalstate_data(), 
            aes(period, value)) +
       geom_line() +
+      geom_point(size=3) +
       theme_minimal()+
-      ylab("Total state CO2 emissions (MMT)")+
-      xlab("Year")
-    # emissions_allfuels_plot <- 
+      ylab(expression(paste("% change ", CO[2], " emissions (mmt)")))+
+      xlab("Year") +
+      ggtitle(paste("Total CO2 Emissions for", input$totalemissions_shape_click$id)) + 
+      scale_x_continuous(breaks=seq(input$rangeyears[1], input$rangeyears[2], 5)) + 
+      theme(plot.title = element_text(size=22))
     # emissions_allfuels_plot %>% ggplotly()
   })
   output$plot_percapemissions_state <- renderPlot({
@@ -151,7 +166,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
            aes(period, emissions_per_capita_value)) + 
       geom_line() + 
       theme_minimal()+
-      ylab("CO2 emissions per capita (MT)")+
+      ylab("CO2 emissions per capita (mt)")+
       xlab("Year")
     # emissions_allfuels_plot <- 
     # emissions_allfuels_plot %>% ggplotly()
@@ -178,7 +193,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
             axis.text=element_text(size=12),
             axis.title=element_text(size=14,face="bold")) +
       labs(color = "Fuel Type")+
-      ylab("CO2 Emissions (MMT)") +
+      ylab("CO2 Emissions (mmt)") +
       xlab("Year")
     
   })
