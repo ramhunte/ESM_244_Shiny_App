@@ -55,7 +55,7 @@ emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All
 #total energy consumed by sector
 #combine all sectors
 sector_energy_use <- rbind(energy_transport_elec, energy_res_com_ind)
-#filter out yearly use and filter by total energy (there are other options for this)
+#filter out yearly use and filter by total energy by sector (there are other options for this)
 filtered_sector <- sector_energy_use %>%
   filter(grepl("13",YYYYMM) & YYYYMM >= 197013 & Description %in% c("Total Energy Consumed by the Transportation Sector", "Total Energy Consumed by the Industrial Sector", "Total Energy Consumed by the Commercial Sector"))
 
