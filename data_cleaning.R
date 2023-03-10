@@ -4,6 +4,7 @@ library(jsonlite)
 library(janitor)
 library(tidyverse)
 library(dplyr)
+library(lubridate)
 
 ### generate data
 # path <- fromJSON("https://api.eia.gov/v2/co2-emissions/co2-emissions-aggregates/data/?frequency=annual&data[0]=value&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000&api_key=mdOP5PhYCWMt6IrK7c2qcDCslb7MrPpyNahheLlF")
@@ -51,3 +52,13 @@ emissions_persector <- emissions_complete_data %>%
 #cumulative CO2 emissions from all fuels for every state per year
 emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All Fuels")
 
+#total energy consumed by sector
+#combine all sectors
+sector_energy_use <- rbind(energy_transport_elec, energy_res_com_ind)
+#filter out yearly use and filter by total energy (there are other options for this)
+filtered_sector <- sector_energy_use %>%
+  filter(grepl("13",YYYYMM) & YYYYMM >= 197013 & Description %in% c("Total Energy Consumed by the Transportation Sector", "Total Energy Consumed by the Industrial Sector", "Total Energy Consumed by the Commercial Sector"))
+
+#explorative plot
+ggplot(filtered_sector, aes(YYYYMM, Value, color = Description)) + geom_point()
+  
