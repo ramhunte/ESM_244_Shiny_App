@@ -213,8 +213,13 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   output$plot_fuel_emissions <- renderPlot({
     ggplot(data=ggplot_fuel_data(), 
            aes(x=period, y=value, color = fuel_name)) + 
-      geom_line() + 
+      geom_line(size=2.5) + 
       theme_minimal()+
+      theme(legend.key.size = unit(2, 'cm'), 
+            legend.title = element_text(size=15, face="bold"), 
+            legend.text = element_text(size=12),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=14,face="bold")) +
       labs(color = "Fuel Type")+
       ylab("CO2 Emissions (mmt)") +
       xlab("Year")
