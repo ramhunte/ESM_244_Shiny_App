@@ -57,7 +57,15 @@ emissions_persector <- emissions_complete_data %>%
 sector_energy_use <- rbind(energy_transport_elec, energy_res_com_ind)
 #filter out yearly use and filter by total energy by sector (there are other options for this)
 filtered_sector <- sector_energy_use %>%
-  filter(grepl("13",YYYYMM) & YYYYMM >= 197013 & Description %in% c("Total Energy Consumed by the Transportation Sector", "Total Energy Consumed by the Industrial Sector", "Total Energy Consumed by the Commercial Sector"))
+  mutate(YYYYMM = as.character(YYYYMM)) %>%
+  filter(endsWith(YYYYMM, "13") & YYYYMM >= 197013 & Description %in% c("Total Energy Consumed by the End-Use-Sectors", 
+                                                                        "Total Electrical Energy System Losses Proportioned to the End-Use Sectors", 
+                                                                        "Total Energy Consumed by the Transportation Sector", 
+                                                                        "Electrical Energy System Losses Proportioned to the Transportation Sector", 
+                                                                        "Total Energy Consumed by the Industrial Sector", 
+                                                                        "Industrial Sector Electrical System Energy Losses", 
+                                                                        "Total Energy Consumed by the Commercial Sector", 
+                                                                        "Commercial Sector Electrical System Energy Losses"))
 
 #explorative plot
 ggplot(emissions_persector, aes(period, value, color = sector_name)) + geom_point()
