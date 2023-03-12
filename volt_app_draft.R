@@ -32,11 +32,16 @@ ui <- dashboardPage(
                                 checkboxInput("colorblind", label="Enable colorblind assist")
                                ),
                    hr(),
-                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot' | 'percapemissions_map_plot'",
+                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
                   fluidRow(
                   column(1),
                   column(10,
                          sliderInput("rangeyears", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")))),
+                  conditionalPanel("input.sidebarid == 'percapemissions_map_plot'",
+                                   fluidRow(
+                                     column(1),
+                                     column(10,
+                                            sliderInput("rangeyears", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")))),
                   conditionalPanel("input.sidebarid == 'emissions_by_fuel'",
                                    fluidRow(
                                      column(1),
