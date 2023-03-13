@@ -68,5 +68,5 @@ filtered_sector <- sector_energy_use %>%
                                                                         "Commercial Sector Electrical System Energy Losses"))
 
 #explorative plot
-ggplot(emissions_persector, aes(period, value, color = sector_name)) + geom_point()
+ggplot(filtered_sector, aes(YYYYMM, Value, color = Description)) + geom_point()
   

@@ -237,10 +237,10 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       geom_point(size=2)+
       theme_minimal()+
       theme(legend.key.size = unit(2, 'cm'), 
-            legend.title = element_text(size=15, face="bold"), 
+            legend.title = element_text(size=14, face="bold"), 
             legend.text = element_text(size=12),
             axis.text=element_text(size=12),
-            axis.title=element_text(size=14,face="bold")) +
+            axis.title=element_text(size=13,face="bold")) +
       ggtitle(paste("Emissions By Sector for", input$pick_state)) + 
       labs(color = "Sector")+
       ylab("CO<sub>2</sub> emissions (MMT)") +
@@ -260,10 +260,10 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       theme_minimal()+
      ggtitle(paste("Emissions By Fuel Type for", input$pick_state)) +
       theme(legend.key.size = unit(2, 'cm'), 
-            legend.title = element_text(size=15, face="bold"), 
+            legend.title = element_text(size=14, face="bold"), 
             legend.text = element_text(size=12),
             axis.text=element_text(size=12),
-            axis.title=element_text(size=14,face="bold")) +
+            axis.title=element_text(size=13,face="bold")) +
       labs(color = "Fuel Type")+
       ylab("CO<sub>2</sub> emissions (MMT)") +
       xlab("Year") + 
