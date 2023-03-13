@@ -70,3 +70,4 @@ filtered_sector <- sector_energy_use %>%
 #explorative plot
 ggplot(emissions_persector, aes(period, value, color = sector_name)) + geom_point()
   
+

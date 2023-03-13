@@ -61,13 +61,18 @@ ui <- dashboardPage(
                 commerical, electric power, and transportation sectors.
                 Emissions are presented in million metric tons of CO2 (MMT), and metric tons (MT). Specific fuels explored here are petroleum, 
                 natural gas, coal, wind, wood, nuclear, and hydroelectric. Furthermore, here we explore how much 
-                electricity was generated each year by these types of fuels across each state.")),
+                electricity was generated each year by these types of fuels across each state. All data was collected from the U.S.
+                Energy Information Administration (EIA) and the Department of Energy (DOE)")),
                 br(),
-              p(h4("All data was collected from the U.S. Energy Information Administration (EIA) and the Department of Energy (DOE)")),
-           
+              
+              p(h4("Authors: Zoe Rennie, Raymond Hunter, and Ignacio Requena are all Bren School of Environmental 
+                   Science and Management students at the University of California, Santa Brarbara. This Shiny App 
+                   was created out of their interest in energy for a data science course. ")),
+                 br(),
               p(h4("Citations: Total energy annual data - U.S. energy information administration (EIA). 
                 Total Energy Annual Data - U.S. Energy Information Administration (EIA). 
-                Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ ")))),
+                Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ "))
+              )),
                       
 ### MAP: Total Emissions by State 
       tabItem(tabName = "totalemissions_map_plot",
@@ -202,12 +207,22 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     shiny::validate(need(input$totalemissions_shape_click$id, "Click on state to generate plot"))
     ggplot(data=ggplot_totalstate_data(), 
            aes(period, value)) +
-      geom_line() +
-      geom_point(size=3) +
+      geom_line(size=1) +
+      geom_point(size=2)+
       theme_minimal()+
-      ylab("% change in CO<sub>2</sub> emissions (MMT)")+
+      theme(legend.key.size = unit(2, 'cm'), 
+            legend.title = element_text(size=15, face="bold"), 
+            legend.text = element_text(size=12),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12,face="bold"), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black")) +
+  
+      ylab("% Change in CO<sub>2</sub> Emissions (MMT)")+
       xlab("Year") +
-      ggtitle(paste("% change in gross CO<sub>2</sub> emissions over time for", input$totalemissions_shape_click$id)) + 
+      ggtitle(paste("% Change in Gross CO<sub>2</sub> Emissions Over Time For", input$totalemissions_shape_click$id)) + 
       scale_x_continuous(breaks=seq(input$rangeyears[1], input$rangeyears[2], 5)) + 
       theme(plot.title = element_text(size=22))
     ggplotly()
@@ -217,12 +232,22 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   shiny::validate(need(input$percapemissions_shape_click$id, "Click on state to generate plot"))
     ggplot(data=ggplot_percapstate_data(), 
            aes(period, emissions_per_capita_value)) + 
-      geom_line() + 
-      geom_point(size=3) +
+      geom_line(size=1) +
+      geom_point(size=2)+
       theme_minimal()+
-      ylab("% change in CO<sub>2</sub> emissions per capita (MT)")+
+      theme(legend.key.size = unit(2, 'cm'), 
+            legend.title = element_text(size=15, face="bold"), 
+            legend.text = element_text(size=12),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12,face="bold"), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black")) +
+      scale_x_continuous(breaks=seq(2015,2020,1))+
+      ylab("% Change in CO<sub>2</sub> Emissions Per Capita (MT)")+
       xlab("Year") + 
-      ggtitle(paste("% change in per capita CO<sub>2</sub> emissions over time for", input$percapemissions_shape_click$id)) + 
+      ggtitle(paste("% Change in Per Capita CO<sub>2</sub> Emissions Over Time for", input$percapemissions_shape_click$id)) + 
       scale_x_continuous(breaks=seq(input$rangeyears[1], input$rangeyears[2], 5)) + 
       theme(plot.title = element_text(size=22))
     ggplotly()
@@ -240,7 +265,11 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
             legend.title = element_text(size=15, face="bold"), 
             legend.text = element_text(size=12),
             axis.text=element_text(size=12),
-            axis.title=element_text(size=14,face="bold")) +
+            axis.title=element_text(size=14,face="bold"), 
+           panel.grid.major = element_blank(),
+           panel.grid.minor = element_blank(),
+           panel.background = element_blank(),
+           axis.line = element_line(colour = "black")) +
       ggtitle(paste("Emissions By Sector for", input$pick_state)) + 
       labs(color = "Sector")+
       ylab("CO<sub>2</sub> emissions (MMT)") +
