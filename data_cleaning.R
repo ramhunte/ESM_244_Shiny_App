@@ -43,22 +43,30 @@ emissions_total_allsectors <- emissions_complete_data %>%
                     filter(sector_name %in% "Total carbon dioxide emissions from all sectors") %>%
                     group_by(state_name, fuel_name, period, value_units, emissions_per_capita_units) %>%
                     summarise(across(c(value, emissions_per_capita_value)))
+#cumulative CO2 emissions from all fuels for every state per year
+emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All Fuels")
 
 #CO2 emissions by state, sector, and year
 emissions_persector <- emissions_complete_data %>%
-  filter(sector_name != "Total carbon dioxide emissions from all sectors") %>%
-  group_by(state_name, sector_name, period) %>%
-  summarize(value)
-#cumulative CO2 emissions from all fuels for every state per year
-emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All Fuels")
+  filter(sector_name %in% c("Industrial carbon dioxide emissions", "Electric Power carbon dioxide emissions", "Commercial carbon dioxide emissions", "Transportation carbon dioxide emissions")) %>%
+ group_by(state_name, sector_name, period, value_units) %>%
+ summarise(value=sum(value))
 
 #total energy consumed by sector
 #combine all sectors
 sector_energy_use <- rbind(energy_transport_elec, energy_res_com_ind)
 #filter out yearly use and filter by total energy by sector (there are other options for this)
 filtered_sector <- sector_energy_use %>%
-  filter(grepl("13",YYYYMM) & YYYYMM >= 197013 & Description %in% c("Total Energy Consumed by the Transportation Sector", "Total Energy Consumed by the Industrial Sector", "Total Energy Consumed by the Commercial Sector"))
+  mutate(YYYYMM = as.character(YYYYMM)) %>%
+  filter(endsWith(YYYYMM, "13") & YYYYMM >= 197013 & Description %in% c("Total Energy Consumed by the End-Use-Sectors", 
+                                                                        "Total Electrical Energy System Losses Proportioned to the End-Use Sectors", 
+                                                                        "Total Energy Consumed by the Transportation Sector", 
+                                                                        "Electrical Energy System Losses Proportioned to the Transportation Sector", 
+                                                                        "Total Energy Consumed by the Industrial Sector", 
+                                                                        "Industrial Sector Electrical System Energy Losses", 
+                                                                        "Total Energy Consumed by the Commercial Sector", 
+                                                                        "Commercial Sector Electrical System Energy Losses"))
 
 #explorative plot
-ggplot(filtered_sector, aes(YYYYMM, Value, color = Description)) + geom_point()
+ggplot(emissions_persector, aes(period, value, color = sector_name)) + geom_point()
   
