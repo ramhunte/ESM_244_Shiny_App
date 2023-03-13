@@ -190,8 +190,15 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       theme(legend.key.size = unit(2, 'cm'), 
             legend.title = element_text(size=15, face="bold"), 
             legend.text = element_text(size=12),
+            #legend.background = element_rect(linetype = 2, size = 0.5, colour = 1),
+            legend.box.background = element_rect(colour = "black"),
             axis.text=element_text(size=12),
-            axis.title=element_text(size=14,face="bold")) +
+            axis.title=element_text(size=14,face="bold"),
+           panel.grid.major = element_blank(),
+           panel.grid.minor = element_blank(),
+                  panel.background = element_blank(),
+           axis.line = element_line(colour = "black")) +
+    
       labs(color = "Fuel Type")+
       ylab("CO2 Emissions (mmt)") +
       xlab("Year")
