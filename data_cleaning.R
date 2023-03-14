@@ -52,7 +52,7 @@ emissions_persector <- emissions_complete_data %>%
  group_by(state_name, sector_name, period, value_units) %>%
  summarise(value=sum(value))
 
-#total energy consumed by sector
+#Widget 3: Total energy consumed by sector
 #combine all sectors
 sector_energy_use <- rbind(energy_transport_elec, energy_res_com_ind)
 #filter out yearly use and filter by total energy by sector (there are other options for this)
@@ -70,4 +70,14 @@ filtered_sector <- sector_energy_use %>%
 #explorative plot
 ggplot(emissions_persector, aes(period, value, color = sector_name)) + geom_point()
   
+filtered_sector[filtered_sector == 'Total Energy Consumed by the Transportation Sector'] <- 'Transportation'
+filtered_sector[filtered_sector == 'Total Energy Consumed by the Industrial Sector'] <- 'Industrial'
+filtered_sector[filtered_sector == 'Total Energy Consumed by the Commercial Sector'] <- 'Commercial'
+filtered_sector[filtered_sector == 'Total Energy Consumed by the End-Use-Sectors'] <- 'All sectors'
 
+filtered_sector$year <- substr(filtered_sector$YYYYMM, 1, 4) #new column with yearly sum extracted
+
+filtered_sector2 <- filtered_sector %>% 
+  clean_names() %>% 
+  group_by(description, value, year) %>% 
+  summarize(value)

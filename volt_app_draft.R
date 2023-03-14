@@ -29,6 +29,13 @@ ui <- dashboardPage(
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
                                menuItem("Emissions By Fuel and Sector", icon = icon("line-chart"),
                                         menuSubItem("Fuel and Sector", tabName="emissions_by_fuel")),
+                               menuItem("Energy Use by Sector", icon = icon("line-chart"),
+                                        checkboxGroupInput(
+                                          inputId = "pick_sector",
+                                          label = "1. Pick sector:",
+                                          selected = "Commercial",
+                                          choices = c("Commercial", "Industrial", "Transportation", "All sectors")),
+                                        menuSubItem("2. Plot", tabName="energy_use_by_sector")),
                                 checkboxInput("colorblind", label="Enable colorblind assist")
                                ),
                    hr(),
@@ -91,8 +98,11 @@ ui <- dashboardPage(
       tabItem(tabName = "emissions_by_fuel",
          box(width=NULL, status="primary", solidHeader=T, title="Emissions by Fuel",  withSpinner(plotlyOutput("plot_fuel_emissions"))),
          br(),
-         box(width=NULL, status="primary", solidHeader = T, title="Emissions by Sector", withSpinner(plotlyOutput("plot_emissions_sector")))
-         )
+         box(width=NULL, status="primary", solidHeader = T, title="Emissions by Sector", withSpinner(plotlyOutput("plot_emissions_sector")))),
+
+tabItem(tabName = "energy_use_by_sector",
+        box(width=NULL, status="primary", solidHeader=T, title="Energy Use by Sector", 
+            plotOutput("plot_sector_emissions")))
     ))
 )
 
@@ -151,6 +161,11 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       mutate(initial = rep(min(emissions_per_capita_value))) %>%
       mutate(pct_change = diff/initial) %>%
       drop_na()
+  })
+  
+  ggplot_sector_data2 <- reactive({
+    filtered_sector2 %>%
+      subset(description %in% input$pick_sector)
   })
 
 ######################
@@ -306,6 +321,31 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
         scale_color_manual(values=if(input$colorblind==T){safe_pal}else{as.factor(unique(ggplot_fuel_data()$fuel_name))})
      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
+  
+  #### Widget 3 GGPLOT. ### LINE OR OPTION?? NEED A LABEL
+  output$plot_sector_emissions <- renderPlot(
+    ggplot(data=ggplot_sector_data2(),
+           aes(as.numeric(year), value, color = description))+
+      geom_line(size=0.8)+
+      theme_minimal()+
+      theme(legend.key.size = unit(2, 'cm'), 
+            legend.title = element_text(size=15, face="bold"), 
+            legend.text = element_text(size=12),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=14,face="bold")) +
+      labs(color = "Sector")+
+      ylab("Energy use (trillion BTU)") +
+      xlab("Year")+
+      scale_x_continuous(breaks = seq(min(as.numeric(filtered_sector2$year)), 
+                                      max(as.numeric(filtered_sector2$year)), 
+                                      by = 10),
+                         labels = seq(min(filtered_sector2$year), 
+                                      max(filtered_sector2$year), 
+                                      by = 10)) +
+      scale_y_continuous(labels = function(x) ifelse(x >= 1000, paste0(x/1000, "k"), x))+
+      expand_limits(y = 0)
+  )
+  
 }
 
 # Run the application 
