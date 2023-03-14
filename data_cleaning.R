@@ -64,9 +64,17 @@ filtered_sector <- sector_energy_use %>%
                                                                         "Electrical Energy System Losses Proportioned to the Transportation Sector", 
                                                                         "Total Energy Consumed by the Industrial Sector", 
                                                                         "Industrial Sector Electrical System Energy Losses", 
-                                                                        "Total Energy Consumed by the Commercial Sector", 
+                                                                        "Total Energy Consumed by the Commercial Sector",
                                                                         "Commercial Sector Electrical System Energy Losses"))
 
-#explorative plot
-ggplot(filtered_sector, aes(YYYYMM, Value, color = Description)) + geom_point()
-  
+filtered_sector$sector <- ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the End-Use-Sectors", "Total Electrical Energy System Losses Proportioned to the End-Use Sectors"), "Electric", 
+                                 ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the Transportation Sector", "Electrical Energy System Losses Proportioned to the Transportation Sector"), "Transportation",
+                                        ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the Industrial Sector","Industrial Sector Electrical System Energy Losses"), "Industrial", 
+                                               ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the Commercial Sector", "Commercial Sector Electrical System Energy Losses"), "Commercial", NA))))
+
+sector_total_losses <- filtered_sector %>% filter(grepl("Losses", Description)) %>% mutate(losses = Value) %>% select(-c(Description, Value, Column_Order, MSN))
+total <- filtered_sector %>% filter(grepl("Total Energy", Description)) %>% mutate(total = Value) %>% select(-c(Description, Value, Column_Order, MSN))
+sector_total_losses$total <- total$total
+sector_total_losses$proportion_losses <- sector_total_losses$losses/sector_total_losses$total
+
+
