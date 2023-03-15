@@ -274,7 +274,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
             axis.line = element_line(colour = "black")) +
-      scale_x_continuous(breaks=seq(2015,2020,1))+
       ylab("% Change in CO<sub>2</sub> Emissions Per Capita (MT)")+
       xlab("Year") + 
       ggtitle(paste("% Change in Per Capita CO<sub>2</sub> Emissions Over Time for", input$percapemissions_shape_click$id)) + 
