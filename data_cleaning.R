@@ -103,3 +103,32 @@ filtered_sector2 <- filtered_sector %>%
   mutate(description = as.factor(description)) %>%
   group_by(description, value, year) %>% 
   summarize(value)
+
+#############
+# Widget 4. Emissions by sector over time
+
+# A. Wrangle Data
+emissions_persector_fuel <- emissions_complete_data %>% 
+  select(period, sector_id, sector_name, fuel_name, value, value_units)
+
+# B. Exploratory plot
+plot_w4 <- ggplot(data=emissions_persector_fuel, aes(x=period, y=value, fill=fuel_name)) +
+  labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+  scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
+  geom_col()+
+  theme_minimal()
+
+plot_w4
+
+# C. Rename Sectors
+emissions_persector_fuel[emissions_persector_fuel == 'Residential carbon dioxide emissions'] <- 'Residential'
+emissions_persector_fuel[emissions_persector_fuel == 'Industrial carbon dioxide emissions'] <- 'Industrial'
+emissions_persector_fuel[emissions_persector_fuel == 'Electric Power carbon dioxide emissions'] <- 'Electric Power'
+emissions_persector_fuel[emissions_persector_fuel == 'Transportation carbon dioxide emissions'] <- 'Transportation'
+emissions_persector_fuel[emissions_persector_fuel == 'Commercial carbon dioxide emissions'] <- 'Commercial'
+emissions_persector_fuel[emissions_persector_fuel == 'Total carbon dioxide emissions from all sectors'] <- 'All sectors'
+
+# D. Duplicate data
+
+emissions_persector_fuelb <- emissions_persector_fuel
+#########

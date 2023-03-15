@@ -27,9 +27,10 @@ ui <- dashboardPage(
                                menuItem("Emissions Maps", icon=icon("map"),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
-                               menuItem("Emissions By Fuel and Sector", icon = icon("line-chart"), tabName="emissions_by_fuel"),
+                               menuItem("Emissions By Fuel, Sector, and State", icon = icon("line-chart"), tabName="emissions_by_fuel"),
+                               menuItem("Emissions By Fuel and Sector", icon = icon("chart-column"), tabName="emissions_persector_fuel"),
                                menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
-                                checkboxInput("colorblind", label="Enable colorblind assist")
+                               checkboxInput("colorblind", label="Enable colorblind assist")
                                ),
                    hr(),
                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
@@ -47,15 +48,23 @@ ui <- dashboardPage(
                                      column(1),
                                      column(10,
                          selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name))))),
-                  conditionalPanel("input.sidebarid == 'energy_use_by_sector'",
+                 # Widget 3
+                   conditionalPanel("input.sidebarid == 'energy_use_by_sector'",
                    fluidRow(
                      column(1),
                      column(10,
                             checkboxGroupInput(
-                              inputId = "pick_sector",
+                              inputId = "pick_sector3",
                               label = "Pick sector:",
                               selected = "Commercial",
-                              choices = c("Commercial", "Industrial", "Transportation", "All sectors")))))
+                              choices = c("Commercial", "Industrial", "Transportation", "All sectors"))))),
+                  ## Widget 4
+                  conditionalPanel("input.sidebarid == 'emissions_persector_fuel'",
+                                   fluidRow(
+                                     column(1),
+                                     column(10,
+                        selectInput("pick_sector4", label="Choose sector (top graph)", selected = "All sectors", choices =  unique(emissions_persector_fuel$sector_name)),
+                        selectInput("pick_sector4b", label="Choose sector (bottom graph)", selected = "Industrial", choices =  unique(emissions_persector_fuelb$sector_name)))))
               
                    ),
 
@@ -109,7 +118,13 @@ ui <- dashboardPage(
       tabItem(tabName = "energy_use_by_sector",
         box(width=NULL, status="primary", solidHeader=T, title="Energy Use by Sector", withSpinner(plotlyOutput("plot_sector_energy"))),
         br(),
-        box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses"))))
+        box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses")))),
+      #widget 4
+      tabItem(tabName = "emissions_persector_fuel",
+        box(width=NULL, status="primary", solidHeader=T, title="Emissions by Sector and Fuel Type", withSpinner(plotlyOutput("plot_emissions_persector_fuel"))),
+        br(),
+        box(width=NULL, status="primary", solidHeader=T, title="Emissions by Sector and Fuel Type", withSpinner(plotlyOutput("plot_emissions_persector_fuelb"))))
+        
     ))
 )
 
@@ -146,15 +161,15 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
      filter(state_name %in% input$pick_state)
   })
   
-  
+  ## Widget 3
   ggplot_sector_data2 <- reactive({
     filtered_sector2 %>%
-      subset(description %in% input$pick_sector)
+      subset(description %in% input$pick_sector3)
   })
   
   ggplot_sector_losses <- reactive({
     sector_total_losses %>%
-      subset(sector%in% input$pick_sector)
+      subset(sector%in% input$pick_sector3)
   })
   
   date_emissions_total  <- reactive({
@@ -179,6 +194,18 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       mutate(initial = rep(min(emissions_per_capita_value))) %>%
       mutate(pct_change = diff/initial) %>%
       drop_na()
+  })
+  
+  #widget 4
+  ggplot_emissions_persector_fuel <- reactive({
+    emissions_persector_fuel %>%
+      subset(sector_name %in% input$pick_sector4)
+  })
+  
+  #widget 4b
+  ggplot_emissions_persector_fuelb <- reactive({
+    emissions_persector_fuelb %>%
+      subset(sector_name %in% input$pick_sector4b)
   })
 
 ######################
@@ -364,6 +391,37 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       expand_limits(y = 0) + 
       geom_point()+
       scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_data2()$description)})
+    ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+    
+  })
+  
+  #### Widget 4
+  output$plot_emissions_persector_fuel<- renderPlotly({
+    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
+    names(safe_pal) <- unique(ggplot_emissions_persector_fuel()$sector_name)
+    ggplot(data=ggplot_emissions_persector_fuel(),
+           aes(period, value, fill = fuel_name))+
+      labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+      scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
+      geom_col()+
+      theme_minimal()+
+      ggtitle(paste("Emissions By Fuel Type for", input$pick_sector4))
+      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_data2()$description)})
+    ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+    
+  })
+  # Widget 4b
+  output$plot_emissions_persector_fuelb<- renderPlotly({
+    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
+    names(safe_pal) <- unique(ggplot_emissions_persector_fuelb()$sector_name)
+    ggplot(data=ggplot_emissions_persector_fuelb(),
+           aes(period, value, fill = fuel_name))+
+      labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+      scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
+      geom_col()+
+      theme_minimal()+
+      ggtitle(paste("Emissions By Fuel Type for", input$pick_sector4b))
+    scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_data2()$description)})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
     
   })
