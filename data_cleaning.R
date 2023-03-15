@@ -41,6 +41,7 @@ emissions_complete_data <- inner_join(co2_emissions, population_US) %>%
 #total CO2 from all sectors by year, fuel type, and state
 emissions_total_allsectors <- emissions_complete_data %>%
                     filter(sector_name %in% "Total carbon dioxide emissions from all sectors") %>%
+                    mutate(fuel_name = as.factor(fuel_name)) %>%
                     group_by(state_name, fuel_name, period, value_units, emissions_per_capita_units) %>%
                     summarise(across(c(value, emissions_per_capita_value)))
 #cumulative CO2 emissions from all fuels for every state per year
@@ -49,10 +50,17 @@ emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All
 #CO2 emissions by state, sector, and year
 emissions_persector <- emissions_complete_data %>%
   filter(sector_name %in% c("Industrial carbon dioxide emissions", "Electric Power carbon dioxide emissions", "Commercial carbon dioxide emissions", "Transportation carbon dioxide emissions")) %>%
- group_by(state_name, sector_name, period, value_units) %>%
+  group_by(state_name, sector_name, period, value_units) %>%
  summarise(value=sum(value))
 
-#total energy consumed by sector
+emissions_persector[emissions_persector== 'Transportation carbon dioxide emissions'] <- 'Transportation'
+emissions_persector[emissions_persector == 'Industrial carbon dioxide emissions'] <- 'Industrial'
+emissions_persector[emissions_persector== 'Commercial carbon dioxide emissions'] <- 'Commercial'
+emissions_persector[emissions_persector == 'Electric Power carbon dioxide emissions'] <- 'Electric Power'
+
+emissions_persector <- emissions_persector %>% mutate(sector_name = as.factor(sector_name))
+
+#Widget 3: Total energy consumed by sector
 #combine all sectors
 sector_energy_use <- rbind(energy_transport_elec, energy_res_com_ind)
 #filter out yearly use and filter by total energy by sector (there are other options for this)
@@ -67,14 +75,31 @@ filtered_sector <- sector_energy_use %>%
                                                                         "Total Energy Consumed by the Commercial Sector",
                                                                         "Commercial Sector Electrical System Energy Losses"))
 
-filtered_sector$sector <- ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the End-Use-Sectors", "Total Electrical Energy System Losses Proportioned to the End-Use Sectors"), "Electric", 
-                                 ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the Transportation Sector", "Electrical Energy System Losses Proportioned to the Transportation Sector"), "Transportation",
-                                        ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the Industrial Sector","Industrial Sector Electrical System Energy Losses"), "Industrial", 
-                                               ifelse(filtered_sector$Description %in% c("Total Energy Consumed by the Commercial Sector", "Commercial Sector Electrical System Energy Losses"), "Commercial", NA))))
-
-sector_total_losses <- filtered_sector %>% filter(grepl("Losses", Description)) %>% mutate(losses = Value) %>% select(-c(Description, Value, Column_Order, MSN))
-total <- filtered_sector %>% filter(grepl("Total Energy", Description)) %>% mutate(total = Value) %>% select(-c(Description, Value, Column_Order, MSN))
+#make new column in data for sector name
+sector_data <- filtered_sector
+sector_data$sector <- ifelse(sector_data$Description %in% c("Total Energy Consumed by the End-Use-Sectors", "Total Electrical Energy System Losses Proportioned to the End-Use Sectors"), "All sectors", 
+                                 ifelse(sector_data$Description %in% c("Total Energy Consumed by the Transportation Sector", "Electrical Energy System Losses Proportioned to the Transportation Sector"), "Transportation",
+                                        ifelse(sector_data$Description %in% c("Total Energy Consumed by the Industrial Sector","Industrial Sector Electrical System Energy Losses"), "Industrial", 
+                                               ifelse(sector_data$Description %in% c("Total Energy Consumed by the Commercial Sector", "Commercial Sector Electrical System Energy Losses"), "Commercial", NA))))
+#get losses and total energy to calculate proportion of losses to total energy used
+sector_total_losses <- sector_data %>% filter(grepl("Losses", Description)) %>% 
+  mutate(losses = Value) %>% select(-c(Description, Value, Column_Order, MSN)) %>%
+  mutate(sector=as.factor(sector))
+total <- sector_data %>% filter(grepl("Total Energy", Description)) %>% mutate(total = Value) %>% select(-c(Description, Value, Column_Order, MSN))
 sector_total_losses$total <- total$total
 sector_total_losses$proportion_losses <- sector_total_losses$losses/sector_total_losses$total
-
-
+sector_total_losses$year <- as.numeric(substr(sector_total_losses$YYYYMM, 1, 4))
+##################
+#rename totals
+filtered_sector[filtered_sector == 'Total Energy Consumed by the Transportation Sector'] <- 'Transportation'
+filtered_sector[filtered_sector == 'Total Energy Consumed by the Industrial Sector'] <- 'Industrial'
+filtered_sector[filtered_sector == 'Total Energy Consumed by the Commercial Sector'] <- 'Commercial'
+filtered_sector[filtered_sector == 'Total Energy Consumed by the End-Use-Sectors'] <- 'All sectors'
+#new column with yearly sum extracted
+filtered_sector$year <- as.numeric(substr(filtered_sector$YYYYMM, 1, 4))
+#filter and group to get total energy over sectors
+filtered_sector2 <- filtered_sector %>% 
+  clean_names() %>% 
+  mutate(description = as.factor(description)) %>%
+  group_by(description, value, year) %>% 
+  summarize(value)
