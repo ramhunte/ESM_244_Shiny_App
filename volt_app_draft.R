@@ -27,12 +27,12 @@ ui <- dashboardPage(
                                menuItem("Emissions Maps", icon=icon("map"),
                                         menuSubItem("Total Emissions", tabName="totalemissions_map_plot"),
                                         menuSubItem("Emission per Capita", tabName="percapemissions_map_plot")),
-                               menuItem("Emissions By Fuel and Sector", icon = icon("line-chart"),
-                                        menuSubItem("Fuel and Sector", tabName="emissions_by_fuel")),
+                               menuItem("Emissions By Fuel and Sector", icon = icon("line-chart"), tabName="emissions_by_fuel"),
+                               menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
                                 checkboxInput("colorblind", label="Enable colorblind assist")
                                ),
                    hr(),
-                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
+                  conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
                   fluidRow(
                   column(1),
                   column(10,
@@ -46,8 +46,18 @@ ui <- dashboardPage(
                                    fluidRow(
                                      column(1),
                                      column(10,
-                         selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name)))))
-                  ),
+                         selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name))))),
+                  conditionalPanel("input.sidebarid == 'energy_use_by_sector'",
+                   fluidRow(
+                     column(1),
+                     column(10,
+                            checkboxGroupInput(
+                              inputId = "pick_sector",
+                              label = "Pick sector:",
+                              selected = "Commercial",
+                              choices = c("Commercial", "Industrial", "Transportation", "All sectors")))))
+              
+                   ),
 
   dashboardBody(
     tags$head(
@@ -64,15 +74,19 @@ ui <- dashboardPage(
                 electricity was generated each year by these types of fuels across each state. All data was collected from the U.S.
                 Energy Information Administration (EIA) and the Department of Energy (DOE)")),
                 br(),
-              
+                h2("User Information"),
+                p(h4("The features of this application are interactive, meaning the user can select options, click on, and scroll over elements to view information. 
+                     The maps section includes interactive choropleth maps that display percent emissions in gross and per capita measurments through 1970-2020 for 
+                     every state in the U.S. The plots show different comparisons for states and sectors through time regarding carbon emissions and energy usage. Insights
+                     from the visualization are written below the generated plots, and serve as a justification for the relavence of the application.")),
+                br(),
               p(h4("Authors: Zoe Rennie, Raymond Hunter, and Ignacio Requena are all Bren School of Environmental 
                    Science and Management students at the University of California, Santa Brarbara. This Shiny App 
                    was created out of their interest in energy for a data science course. ")),
                  br(),
               p(h4("Citations: Total energy annual data - U.S. energy information administration (EIA). 
                 Total Energy Annual Data - U.S. Energy Information Administration (EIA). 
-                Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ "))
-              )),
+                Retrieved March 3, 2023, from https://www.eia.gov/totalenergy/data/annual/ ")))),
                       
 ### MAP: Total Emissions by State 
       tabItem(tabName = "totalemissions_map_plot",
@@ -91,8 +105,11 @@ ui <- dashboardPage(
       tabItem(tabName = "emissions_by_fuel",
          box(width=NULL, status="primary", solidHeader=T, title="Emissions by Fuel",  withSpinner(plotlyOutput("plot_fuel_emissions"))),
          br(),
-         box(width=NULL, status="primary", solidHeader = T, title="Emissions by Sector", withSpinner(plotlyOutput("plot_emissions_sector")))
-         )
+         box(width=NULL, status="primary", solidHeader = T, title="Emissions by Sector", withSpinner(plotlyOutput("plot_emissions_sector")))),
+      tabItem(tabName = "energy_use_by_sector",
+        box(width=NULL, status="primary", solidHeader=T, title="Energy Use by Sector", withSpinner(plotlyOutput("plot_sector_energy"))),
+        br(),
+        box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses"))))
     ))
 )
 
@@ -127,6 +144,17 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     emissions_total_allsectors %>%
       select(state_name, fuel_name, value, period, value_units, emissions_per_capita_units) %>%
      filter(state_name %in% input$pick_state)
+  })
+  
+  
+  ggplot_sector_data2 <- reactive({
+    filtered_sector2 %>%
+      subset(description %in% input$pick_sector)
+  })
+  
+  ggplot_sector_losses <- reactive({
+    sector_total_losses %>%
+      subset(sector%in% input$pick_sector)
   })
   
   date_emissions_total  <- reactive({
@@ -256,12 +284,12 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
     names(safe_pal) <- unique(ggplot_emissions_sector_data()$sector_name)
     ggplot(data=ggplot_emissions_sector_data(),
-           aes(period, value, color = as.factor(sector_name))) +
+           aes(period, value, color = sector_name)) +
       geom_line(size=1) +
       geom_point(size=2)+
       theme_minimal()+
       theme(legend.key.size = unit(2, 'cm'), 
-            legend.title = element_text(size=15, face="bold"), 
+            legend.title = element_text(size=14, face="bold"), 
             legend.text = element_text(size=12),
             axis.text=element_text(size=12),
             axis.title=element_text(size=14,face="bold"), 
@@ -273,7 +301,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       labs(color = "Sector")+
       ylab("CO<sub>2</sub> emissions (MMT)") +
       xlab("Year") + 
-      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{as.factor(unique(ggplot_emissions_sector_data()$sector_name))})
+      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_emissions_sector_data()$sector_name)})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
 
@@ -282,29 +310,88 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
     names(safe_pal) <- unique(ggplot_fuel_data()$fuel_name)
    ggplot(data=ggplot_fuel_data(), 
-          aes(period, value, color = as.factor(fuel_name))) +
+          aes(period, value, color = fuel_name)) +
       geom_line(size=1) +
       geom_point(size=2)+
       theme_minimal()+
      ggtitle(paste("Emissions By Fuel Type for", input$pick_state)) +
       theme(legend.key.size = unit(2, 'cm'), 
-            legend.title = element_text(size=15, face="bold"), 
+            legend.title = element_text(size=14, face="bold"), 
             legend.text = element_text(size=12),
-            #legend.background = element_rect(linetype = 2, size = 0.5, colour = 1),
             legend.box.background = element_rect(colour = "black"),
             axis.text=element_text(size=12),
             axis.title=element_text(size=14,face="bold"),
            panel.grid.major = element_blank(),
            panel.grid.minor = element_blank(),
-                  panel.background = element_blank(),
+           panel.background = element_blank(),
            axis.line = element_line(colour = "black")) +
-    
-      labs(color = "Fuel Type")+
+      labs(color = "Fuel Type") +
       ylab("CO<sub>2</sub> emissions (MMT)") +
       xlab("Year") + 
-        scale_color_manual(values=if(input$colorblind==T){safe_pal}else{as.factor(unique(ggplot_fuel_data()$fuel_name))})
+        scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_fuel_data()$fuel_name)})
      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
+  
+  # label provided with updated ui
+  #### Widget 3 GGPLOT. ### LINE OR OPTION??
+  output$plot_sector_energy <- renderPlotly({
+    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
+    names(safe_pal) <- unique(ggplot_sector_data2()$description)
+    ggplot(data=ggplot_sector_data2(),
+           aes(year, value, color = description))+
+      geom_point(size=2) + 
+      geom_line(size=1)+
+      theme_minimal()+
+      theme(legend.key.size = unit(2, 'cm'), 
+            legend.title = element_text(size=14, face="bold"), 
+            legend.text = element_text(size=12),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=14,face="bold"), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black"))+
+      labs(color = "Sector")+
+      ylab("Energy use (trillion BTU)") +
+      xlab("Year")+
+      scale_x_continuous(breaks = seq(min(filtered_sector2$year), 
+                                      max(filtered_sector2$year), 
+                                      by = 10),
+                         labels = seq(min(filtered_sector2$year), 
+                                      max(filtered_sector2$year), 
+                                      by = 10)) +
+      scale_y_continuous(labels = function(x) ifelse(x >= 1000, paste0(x/1000, "k"), x))+
+      expand_limits(y = 0) + 
+      geom_point()+
+      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_data2()$description)})
+    ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+    
+  })
+  
+  output$plot_losses <- renderPlotly({
+    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
+    names(safe_pal) <- unique(ggplot_sector_data2()$description)
+    ggplot(ggplot_sector_losses(), 
+    aes(year, proportion_losses, color=sector)) +
+    geom_point(size=2) + 
+    geom_line(size=1) +
+      theme_minimal() + 
+      theme(legend.key.size = unit(2, 'cm'), 
+            legend.title = element_text(size=14, face="bold"), 
+            legend.text = element_text(size=12),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=14,face="bold"), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black")) +
+      labs(color = "Sector")+
+      ylab("Proportion losses") +
+      xlab("Year")+
+    scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_losses()$sector)})
+    ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+  })
+  
 }
 
 # Run the application 
