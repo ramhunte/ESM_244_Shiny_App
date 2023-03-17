@@ -33,7 +33,7 @@ ui <- dashboardPage(
                                         menuSubItem("State Scale", tabName="emissions_by_fuel", icon = icon("line-chart")),
                                         menuSubItem("National Scale", tabName= "emissions_persector_fuel", icon = icon("chart-column"))),
                                menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
-                               menuItem("Energy Generation by State", icon=icon("line-chart"), tabName="elec_generation"),
+                               menuItem("Energy Generation by State", icon=icon("chart-column"), tabName="elec_generation"),
                                checkboxInput("colorblind", label="Enable colorblind assist"),
                                ####data download
                                selectInput("dataset", "Choose a dataset:",
@@ -474,11 +474,11 @@ server <- function(input, output) {
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
 
-  output$electric_power <- renderPlot({    
+  output$electric_power <- renderPlotly({    
     names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("electric_power" %in% input$whichPlot){
       emissions_persector_fuel %>%
-        filter(sector_name %in% "electric_power") %>%
+        filter(sector_name %in% "electric_power" & !fuel_name %in% "All Fuels") %>%
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
@@ -497,14 +497,16 @@ server <- function(input, output) {
               axis.line = element_line(colour = "black"))+
         ggtitle("Emissions By Fuel Type for Electric Power") +
         scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+      
     }
   })
   
-  output$commercial <- renderPlot({ 
+  output$commercial <- renderPlotly({ 
     names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("commercial" %in% input$whichPlot){
       emissions_persector_fuel %>%
-        filter(sector_name %in% "commercial") %>%
+        filter(sector_name %in% "commercial" & !fuel_name %in% "All Fuels") %>%
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
@@ -522,15 +524,17 @@ server <- function(input, output) {
               panel.background = element_blank(),
               axis.line = element_line(colour = "black"))+
         ggtitle("Emissions By Fuel Type for Commercial") +
-        scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+        scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal})
+      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+      
     }
   })
   
-  output$industrial <- renderPlot({ 
+  output$industrial <- renderPlotly({ 
     names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("industrial" %in% input$whichPlot){
       emissions_persector_fuel %>%
-        filter(sector_name %in% "industrial") %>%
+        filter(sector_name %in% "industrial" & !fuel_name %in% "All Fuels") %>%
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
@@ -549,14 +553,16 @@ server <- function(input, output) {
               axis.line = element_line(colour = "black"))+
         ggtitle("Emissions By Fuel Type for Industrial") +
         scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+      
     }
   })
   
-  output$transportation <- renderPlot({ 
+  output$transportation <- renderPlotly({ 
     names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("transportation" %in% input$whichPlot){
       emissions_persector_fuel %>%
-        filter(sector_name %in% "transportation") %>%
+        filter(sector_name %in% "transportation" & !fuel_name %in% "All Fuels") %>%
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
@@ -575,13 +581,15 @@ server <- function(input, output) {
               axis.line = element_line(colour = "black"))+
         ggtitle("Emissions By Fuel Type for Transportation") +
         scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
+      
     }
   })
   
   output$plot_emissions_persector_fuel <- renderUI({
     plot_output_list <- lapply(input$whichPlot, 
                                function(plotname) {
-                                 column(width=5, plotOutput(plotname)) ##wrap the plotOutput in column to render side-by-side
+                                 column(width=5, plotlyOutput(plotname)) ##wrap the plotOutput in column to render side-by-side
                                })
     do.call(tagList, plot_output_list)
   })
