@@ -167,7 +167,10 @@ ui <- dashboardPage(
       tabItem(tabName="elec_generation",
               box(width=NULL, status="primary", solidHeader=T, title="Electricity Generation by State", withSpinner(plotlyOutput("plot_generation"))),
               box(width=NULL, status="primary", solidHeader = T, title="Quick Facts", 
-                  p(h4("Text")))
+                  p(h4("Grid mix in different states largely varies based on 1) economic viability of the fuel source and 2) accessibility. For example, Colorado has a larger portion 
+                       of hydroelectric and wind power generation because it is geographically well-positioned to take advantage of these renewable resources. On the other hand, states 
+                       like Wyoming and Alaska which have strong economic and social ties to their energy sources, particulary coal for Wyoming, have grown a dependency on these fuels.
+                       Policy also plays a large roll in grid mix - climate-progressive states like California show a well-mixed grid with a fair amount of renewable and gray power sources.")))
               )
     ))
 )
@@ -261,7 +264,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
 #########OUTPUTS#############
   output$totalemissions <- renderLeaflet({
     pal <- colorNumeric(if(input$colorblind==T){"Blues"}else{"YlOrRd"},date_emissions_total()$pct_change)
-    leaflet(date_emissions_total(), options=leafletOptions(doubleClickZoom=F)) %>%
+    leaflet(date_emissions_total(), options=leafletOptions(doubleClickZoom=F, minZoom = 2)) %>%
       addTiles() %>%
       addPolygons(layerId = ~unique(state_name),
                   fillColor = ~pal(pct_change),
@@ -277,7 +280,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   
   output$percapemissions <- renderLeaflet({
     pal <- colorNumeric(if(input$colorblind==T){"Blues"}else{"YlOrRd"},date_emissions_capita()$pct_change)
-        leaflet(date_emissions_capita(), options=leafletOptions(doubleClickZoom=F)) %>%
+        leaflet(date_emissions_capita(), options=leafletOptions(doubleClickZoom=F, minZoom = 2)) %>%
       addTiles() %>%
       addPolygons(layerId = ~unique(state_name),
                   fillColor = ~pal(pct_change),
