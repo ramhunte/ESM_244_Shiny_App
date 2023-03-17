@@ -589,7 +589,7 @@ server <- function(input, output) {
   output$plot_emissions_persector_fuel <- renderUI({
     plot_output_list <- lapply(input$whichPlot, 
                                function(plotname) {
-                                 column(width=5, plotlyOutput(plotname)) ##wrap the plotOutput in column to render side-by-side
+                                 column(width=5, plotlyOutput(plotname))
                                })
     do.call(tagList, plot_output_list)
   })
