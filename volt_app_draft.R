@@ -159,7 +159,7 @@ dashboardBody(
             box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses"))),
             br(),
             box(width=NULL, status="primary", solidHeader=T, title = "Quick Facts",
-                p(h4("The plot shows the energy use (in trillion BTUs) of the commercial, industrial, and transportation sectors, which have been steadily 
+                p(h4("The upper plot shows the energy use (in trillion BTUs) of the commercial, industrial, and transportation sectors, which have been steadily 
 increasing since 1970, with a tapering off since 2005. This plateau can be attributed to improvements in energy efficiency and the 
 shift towards renewable energies such as solar and wind power, as well as policies that reduce energy use, such as building codes and
 energy efficiency standards for appliances and equipment.")),
