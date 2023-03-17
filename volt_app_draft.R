@@ -99,7 +99,7 @@ dashboardBody(
                 Emissions are presented in million metric tons of CO2 (MMT), and metric tons (MT). Specific fuels explored here are petroleum, 
                 natural gas, coal, wind, wood, nuclear, and hydroelectric. Furthermore, here we explore how much 
                 electricity was generated each year by these types of fuels across each state. All data was collected from the U.S.
-                Energy Information Administration (EIA) and the Department of Energy (DOE)")),
+                Energy Information Administration (EIA) and the Department of Energy (DOE).")),
                 br(),
                 h2(strong("User Information")),
                 p(h4("The features of this application are interactive, meaning the user can select options, click on, and scroll over elements to view information. 
