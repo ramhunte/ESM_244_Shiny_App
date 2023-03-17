@@ -37,14 +37,14 @@ ui <- dashboardPage(
                                checkboxInput("colorblind", label="Enable colorblind assist"),
                                
                                
-                               #data download
+                               ####data download
                               
-                               selectInput("dataset", "Choose a dataset:",
-                                           choices = "emissions data"),
+                                selectInput("dataset", "Choose a dataset:",
+                                            choices = c("emissions data", " placeholder 1", "placeholder 2")),
                                downloadButton("downloadData", "Download")),
                               
                    
-                 #  mainPanel(tableOutput("table")),
+               
                    
                    
                    hr(),
@@ -562,12 +562,14 @@ output$electric_power <- renderPlot({
   
   datasetInput <- reactive({
     switch(input$dataset,
-           "emissions data" = emissions_complete_data)
+           "emissions data" = emissions_complete_data,
+           " placeholder 1" = , 
+           "placeholder 2" =     )
   })
 
-  output$table <- renderTable({
-    datasetInput()
-  })
+  # output$table <- renderTable({
+  #   datasetInput()
+  # })
 
   output$downloadData <- downloadHandler(
     filename = function() {
