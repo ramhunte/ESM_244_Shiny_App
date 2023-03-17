@@ -47,8 +47,6 @@ emissions_total_allsectors <- emissions_complete_data %>%
                     summarise(across(c(value, emissions_per_capita_value)))
 #cumulative CO2 emissions from all fuels for every state per year
 emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All Fuels")
-avg <- emissions_all_fuels %>% group_by(period) %>% summarise(national_avg = mean(value))
-emissions_all_fuels <- inner_join(emissions_all_fuels, avg)
 
 #CO2 emissions by state, sector, and year
 emissions_persector <- emissions_complete_data %>%
