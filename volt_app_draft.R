@@ -79,7 +79,7 @@ ui <- dashboardPage(
                                               inputId = "pick_sector3",
                                               label = "Pick sector:",
                                               selected = "Commercial",
-                                              choices = c("Commercial", "Industrial", "Transportation", "Electric Power"))))),
+                                              choices = c("Commercial", "Industrial", "Transportation", "All sectors"))))),
                   
                  conditionalPanel("input.sidebarid == 'elec_generation'",
                                   fluidRow(
@@ -170,7 +170,7 @@ ui <- dashboardPage(
                   p(h4("Grid mix in different states largely varies based on 1) economic viability of the fuel source and 2) accessibility. For example, Colorado has a larger portion 
                        of hydroelectric and wind power generation because it is geographically well-positioned to take advantage of these renewable resources. On the other hand, states 
                        like Wyoming and Alaska which have strong economic and social ties to their energy sources, particulary coal for Wyoming, have grown a dependency on these fuels.
-                       Policy also plays a large roll in grid mix - climate-progressive states like California show a well-mixed grid with a fair amount of renewable and gray power sources.")))
+                       Policy also plays a large roll in grid mix - climate-progressive states like California show a more mixed grid with a fair amount of renewable and gray power sources.")))
               )
     ))
 )
@@ -471,9 +471,18 @@ output$electric_power <- renderPlot({
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+        labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
+        theme(legend.key.size = unit(2, 'cm'),
+              legend.title = element_text(size=14, face="bold"), 
+              legend.text = element_text(size=12),
+              axis.text=element_text(size=12),
+              axis.title=element_text(size=14,face="bold"), 
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.background = element_blank(),
+              axis.line = element_line(colour = "black"))+
         ggtitle("Emissions By Fuel Type for Electric Power") +
         scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
     }
@@ -487,9 +496,18 @@ output$electric_power <- renderPlot({
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+        labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
+        theme(legend.key.size = unit(2, 'cm'),
+              legend.title = element_text(size=14, face="bold"), 
+              legend.text = element_text(size=12),
+              axis.text=element_text(size=12),
+              axis.title=element_text(size=14,face="bold"), 
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.background = element_blank(),
+              axis.line = element_line(colour = "black"))+
         ggtitle("Emissions By Fuel Type for Commercial") +
         scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
     }
@@ -503,9 +521,18 @@ output$electric_power <- renderPlot({
        ggplot(aes(period, total, fill=fuel_name)) +
        geom_col()+
        scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-       labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+       labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
        geom_bar(position="stack", stat="identity")+
        theme_minimal()+
+       theme(legend.key.size = unit(2, 'cm'),
+             legend.title = element_text(size=14, face="bold"), 
+             legend.text = element_text(size=12),
+             axis.text=element_text(size=12),
+             axis.title=element_text(size=14,face="bold"), 
+             panel.grid.major = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.background = element_blank(),
+             axis.line = element_line(colour = "black"))+
        ggtitle("Emissions By Fuel Type for Industrial") +
        scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
    }
@@ -519,9 +546,18 @@ output$electric_power <- renderPlot({
        ggplot(aes(period, total, fill=fuel_name)) +
        geom_col()+
        scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-       labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
+       labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
        geom_bar(position="stack", stat="identity")+
        theme_minimal()+
+       theme(legend.key.size = unit(2, 'cm'),
+             legend.title = element_text(size=14, face="bold"), 
+             legend.text = element_text(size=12),
+             axis.text=element_text(size=12),
+             axis.title=element_text(size=14,face="bold"), 
+             panel.grid.major = element_blank(),
+             panel.grid.minor = element_blank(),
+             panel.background = element_blank(),
+             axis.line = element_line(colour = "black"))+
        ggtitle("Emissions By Fuel Type for Transportation") +
        scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
    }
@@ -552,6 +588,7 @@ output$electric_power <- renderPlot({
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
             axis.line = element_line(colour = "black")) +
+      ggtitle(paste("Grid Mix for",input$pick_state2))+
       scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
