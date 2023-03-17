@@ -34,24 +34,21 @@ ui <- dashboardPage(
                                         menuSubItem("National Scale", tabName= "emissions_persector_fuel", icon = icon("chart-column"))),
                                menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
                                menuItem("Energy Generation by State", icon=icon("line-chart"), tabName="elec_generation"),
-                               checkboxInput("colorblind", label="Enable colorblind assist"),
+                               checkboxInput("colorblind", label="Enable colorblind assist")),
 
-                               #data download
-                               selectInput("dataset", "Choose a dataset:",
-                                           choices = "emissions data"),
-                               downloadButton("downloadData", "Download")),
-                   
                    hr(),
                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
                   fluidRow(
                   column(1),
                   column(10,
-                         sliderInput("rangeyears", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")))),
+                         sliderInput("rangeyears", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")),
+                        downloadButton("downloadData", "Download Emissions Data"))),
                   conditionalPanel("input.sidebarid == 'percapemissions_map_plot'",
                                    fluidRow(
                                      column(1),
                                      column(10,
-                                            sliderInput("rangeyears2", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")))),
+                                            sliderInput("rangeyears2", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")),
+                                     downloadButton("downloadData", "Download Emissions Data"))),
                  
                    conditionalPanel("input.sidebarid == 'emissions_by_fuel'",
                                    fluidRow(
@@ -590,23 +587,13 @@ output$electric_power <- renderPlot({
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
   
-  ####3####data downlad
-  
-  # datasetInput <- reactive({
-  #   switch(input$dataset,
-  #          "emissions data" = emissions_complete_data)
-  # })
-
   output$downloadData <- downloadHandler(
-    filename = function() {
-      paste(input$dataset, "emissions data.csv", sep = "")
-    },
+    filename = "emissions data.csv",
     content = function(file) {
       write.csv(emissions_complete_data, file, row.names = FALSE)
     }
   )
 
- ########## 
 
 }
 
