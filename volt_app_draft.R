@@ -34,8 +34,12 @@ ui <- dashboardPage(
                                         menuSubItem("National Scale", tabName= "emissions_persector_fuel", icon = icon("chart-column"))),
                                menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
                                menuItem("Energy Generation by State", icon=icon("line-chart"), tabName="elec_generation"),
-                               checkboxInput("colorblind", label="Enable colorblind assist")
-                               ),
+                               checkboxInput("colorblind", label="Enable colorblind assist"),
+
+                               #data download
+                               selectInput("dataset", "Choose a dataset:",
+                                           choices = "emissions data"),
+                               downloadButton("downloadData", "Download")),
                    
                    hr(),
                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
@@ -55,8 +59,7 @@ ui <- dashboardPage(
                                      column(10,
                          selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name)),
                          selectInput("dataset", label = "Choose a dataset:",
-                                     choices = c("Emissions by Fuel", "Emissions by Sector")),
-                         downloadButton("downloadData", "Download", style = "color: #fff; background-color: #3792cb; border-color: #fff;border-color: #fff;width:130;padding: 10px 10px 10px 10px;margin: 10px 10px 10px 10px; ")))),
+                                     choices = c("Emissions by Fuel", "Emissions by Sector"))))),
 
                   conditionalPanel("input.sidebarid == 'emissions_persector_fuel'",
                                    fluidRow(
@@ -253,12 +256,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     clean_power_generation_states  %>%
       clean_names() %>%
       filter(state_name %in% input$pick_state2)
-  })
-  
-  datasetInput <- reactive({
-    switch(input$dataset,
-           "Emissions by Fuel" = ggplot_fuel_data(),
-           "Emissions by Sector" = ggplot_emissions_sector_data())
   })
 
 #########OUTPUTS#############
@@ -593,16 +590,23 @@ output$electric_power <- renderPlot({
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
   
+  ####3####data downlad
   
-  # Downloadable csv of selected dataset ----
+  # datasetInput <- reactive({
+  #   switch(input$dataset,
+  #          "emissions data" = emissions_complete_data)
+  # })
+
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste(input$dataset, ".csv", sep = "")
+      paste(input$dataset, "emissions data.csv", sep = "")
     },
     content = function(file) {
-      write.csv(datasetInput(), file, row.names = FALSE)
+      write.csv(emissions_complete_data, file, row.names = FALSE)
     }
   )
+
+ ########## 
 
 }
 
