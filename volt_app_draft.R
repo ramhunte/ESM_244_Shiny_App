@@ -424,6 +424,7 @@ server <- function(input, output) {
   })
   
   output$plot_sector_energy <- renderPlotly({
+    shiny::validate(need(input$pick_sector3, "Please choose a sector"))
     names(safe_pal) <- unique(ggplot_sector_data2()$description)
     ggplot(data=ggplot_sector_data2(),
            aes(year, value, color = description))+
@@ -446,11 +447,11 @@ server <- function(input, output) {
       expand_limits(y = 0) +
       scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
-    
   })
   
   
   output$plot_losses <- renderPlotly({
+    shiny::validate(need(input$pick_sector3, "Please choose a sector"))
     names(safe_pal) <- unique(ggplot_sector_losses()$sector)
     ggplot(ggplot_sector_losses(), 
            aes(year, proportion_losses, color=sector)) +
@@ -472,7 +473,7 @@ server <- function(input, output) {
       scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
-  
+
   output$electric_power <- renderPlot({    
     names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("electric_power" %in% input$whichPlot){
