@@ -138,7 +138,7 @@ emissions_persector_fuelb <- emissions_persector_fuel
 #########
 clean_power_generation_states <- power_generation_states %>%
   clean_names() %>%
-  filter(type_of_producer %in% "Total Electric Power Industry" & !energy_source %in% c("Total", "Other", "Other Gases", "Other Biomass") & !state %in% c("DC", "US-TOTAL")) %>%
+  filter(type_of_producer %in% "Total Electric Power Industry" & !energy_source %in% c("Total", "Other", "Other Gases", "Other Biomass") & !state %in% c("DC", "US-TOTAL", "US-Total", NA)) %>%
   mutate(energy_source = as.factor(energy_source))
 #replace abbreviations with names
 clean_power_generation_states$state_name <- state.name[match(clean_power_generation_states$state, state.abb)]
