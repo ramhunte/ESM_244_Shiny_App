@@ -48,21 +48,16 @@ ui <- dashboardPage(
                                      column(1),
                                      column(10,
                                             sliderInput("rangeyears2", label = "Select range of years", min = 1970, max = 2020, value = c(2015, 2020), sep="")))),
-                  conditionalPanel("input.sidebarid == 'emissions_by_fuel'",
+                 
+                   conditionalPanel("input.sidebarid == 'emissions_by_fuel'",
                                    fluidRow(
                                      column(1),
                                      column(10,
-                         selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name))))),
-                 # Widget 3
-                   conditionalPanel("input.sidebarid == 'energy_use_by_sector'",
-                   fluidRow(
-                     column(1),
-                     column(10,
-                            checkboxGroupInput(
-                              inputId = "pick_sector3",
-                              label = "Pick sector:",
-                              selected = "Commercial",
-                              choices = c("Commercial", "Industrial", "Transportation", "All sectors"))))),
+                         selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name)),
+                         selectInput("dataset", label = "Choose a dataset:",
+                                     choices = c("Emissions by Fuel", "Emissions by Sector")),
+                         downloadButton("downloadData", "Download", style = "color: #fff; background-color: #3792cb; border-color: #fff;border-color: #fff;width:130;padding: 10px 10px 10px 10px;margin: 10px 10px 10px 10px; ")))),
+
                   conditionalPanel("input.sidebarid == 'emissions_persector_fuel'",
                                    fluidRow(
                                      column(1),
@@ -75,12 +70,22 @@ ui <- dashboardPage(
                                                                          "Transportation" = "transportation"),
                                                              selected="industrial"
                                                                          )))),
+                  
+                  conditionalPanel("input.sidebarid == 'energy_use_by_sector'",
+                                   fluidRow(
+                                     column(1),
+                                     column(10,
+                                            checkboxGroupInput(
+                                              inputId = "pick_sector3",
+                                              label = "Pick sector:",
+                                              selected = "Commercial",
+                                              choices = c("Commercial", "Industrial", "Transportation", "Electric Power"))))),
+                  
                  conditionalPanel("input.sidebarid == 'elec_generation'",
                                   fluidRow(
                                     column(1),
                                     column(10,
-                                    selectInput("pick_state2", label="Pick state", selected = "CA", choices =  unique(clean_power_generation_states$state)))))
-                 ),
+                                    selectInput("pick_state2", label="Pick state", selected = "CA", choices =  unique(clean_power_generation_states$state_name)))))),
               
   dashboardBody(
     tags$head(
@@ -115,7 +120,7 @@ ui <- dashboardPage(
                       
 ### MAP: Total Emissions by State 
       tabItem(tabName = "totalemissions_map_plot",
-        box(width=NULL, status="primary", solidHeader=T, title = "Total Emissions Maps", 
+        box(width=NULL, status="primary", solidHeader=T, title = "Percent Change in Gross Emissions", 
             withSpinner(leafletOutput("totalemissions")),
             br(),
             withSpinner(plotlyOutput("plot_totalemissions_state"))),
@@ -128,7 +133,7 @@ ui <- dashboardPage(
 
 ### MAP: Per Capita Emissions 
       tabItem(tabName = "percapemissions_map_plot",
-              box(width=NULL, status="primary", solidHeader=T, title = "Per Capita Emissions Maps",
+              box(width=NULL, status="primary", solidHeader=T, title = "Percent Change in Per Capita Emissions",
                   withSpinner(leafletOutput("percapemissions")),
                   br(),
                   withSpinner(plotlyOutput("plot_percapemissions_state"))),
@@ -195,7 +200,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
      filter(state_name %in% input$pick_state)
   })
   
-  ## Widget 3
   ggplot_sector_data2 <- reactive({
     filtered_sector2 %>%
       subset(description %in% input$pick_sector3)
@@ -238,14 +242,13 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   ggplot_electricity_generation <- reactive({
     clean_power_generation_states  %>%
       clean_names() %>%
-      filter(state %in% input$pick_state2)
+      filter(state_name %in% input$pick_state2)
   })
-  
   
   datasetInput <- reactive({
     switch(input$dataset,
-           "state emissions" = states_emissions,
-           "sector emissions" = emissions_persector)
+           "Emissions by Fuel" = ggplot_fuel_data(),
+           "Emissions by Sector" = ggplot_emissions_sector_data())
   })
 
 #########OUTPUTS#############
@@ -317,7 +320,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   
       ylab("Change in CO<sub>2</sub> Emissions (MMT)")+
       xlab("Year") +
-      ggtitle(paste("Gross Change CO<sub>2</sub> Emissions Over Time For", input$totalemissions_shape_click$id)) + 
+      ggtitle(paste("Gross Change in CO<sub>2</sub> Emissions Over Time For", input$totalemissions_shape_click$id)) + 
       scale_x_continuous(breaks=seq(input$rangeyears[1], input$rangeyears[2], 5)) + 
       theme(plot.title = element_text(size=22))
     ggplotly()
@@ -341,14 +344,16 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
             axis.line = element_line(colour = "black")) +
       ylab("Change in CO<sub>2</sub> Emissions Per Capita (MT)")+
       xlab("Year") + 
-      ggtitle(paste("Gross Change CO<sub>2</sub> Emissions Over Time For", input$percapemissions_shape_click$id)) + 
+      ggtitle(paste("Per Capita Change in CO<sub>2</sub> Emissions Over Time For", input$percapemissions_shape_click$id)) + 
       scale_x_continuous(breaks=seq(input$rangeyears2[1], input$rangeyears2[2], 5)) + 
       theme(plot.title = element_text(size=22))
     ggplotly()
   })
+  pal <- c("#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF", "#E6F598", "#ABDDA4", "#66C2A5", "#3288BD", "#5E4FA2")
+  safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
+  
   
   output$plot_emissions_sector <- renderPlotly({
-    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
     names(safe_pal) <- unique(ggplot_emissions_sector_data()$sector_name)
     ggplot(data=ggplot_emissions_sector_data(),
            aes(period, value, color = sector_name)) +
@@ -374,7 +379,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
 
   
   output$plot_fuel_emissions <- renderPlotly({
-    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
     names(safe_pal) <- unique(ggplot_fuel_data()$fuel_name)
    ggplot(data=ggplot_fuel_data(), 
           aes(period, value, color = fuel_name)) +
@@ -400,7 +404,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   })
   
   output$plot_sector_energy <- renderPlotly({
-    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
     names(safe_pal) <- unique(ggplot_sector_data2()$description)
     ggplot(data=ggplot_sector_data2(),
            aes(year, value, color = description))+
@@ -427,7 +430,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   
 
   output$plot_losses <- renderPlotly({
-    safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
     names(safe_pal) <- unique(ggplot_sector_losses()$sector)
     ggplot(ggplot_sector_losses(), 
     aes(year, proportion_losses, color=sector)) +
@@ -451,7 +453,6 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   })
   
 output$electric_power <- renderPlot({    
-  safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
   names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("electric_power" %in% input$whichPlot){
       emissions_persector_fuel %>%
@@ -463,11 +464,11 @@ output$electric_power <- renderPlot({
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
         ggtitle("Emissions By Fuel Type for Electric Power") +
-        scale_fill_manual(values=safe_pal)    }
+        scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+    }
   })
   
  output$commercial <- renderPlot({ 
-   safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
    names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
     if("commercial" %in% input$whichPlot){
       emissions_persector_fuel %>%
@@ -479,11 +480,11 @@ output$electric_power <- renderPlot({
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
         ggtitle("Emissions By Fuel Type for Commercial") +
-        scale_fill_manual(values=safe_pal)    }
+        scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+    }
   })
  
  output$industrial <- renderPlot({ 
-   safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
    names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
    if("industrial" %in% input$whichPlot){
      emissions_persector_fuel %>%
@@ -495,11 +496,11 @@ output$electric_power <- renderPlot({
        geom_bar(position="stack", stat="identity")+
        theme_minimal()+
        ggtitle("Emissions By Fuel Type for Industrial") +
-       scale_fill_manual(values=safe_pal)   }
+       scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
+   }
  })
  
  output$transportation <- renderPlot({ 
-   safe_pal <- c("#9ECAE1", "#6BAED6","#4292C6", "#2171B5")
    names(safe_pal) <- unique(emissions_persector_fuel$fuel_name)
    if("transportation" %in% input$whichPlot){
      emissions_persector_fuel %>%
@@ -511,7 +512,7 @@ output$electric_power <- renderPlot({
        geom_bar(position="stack", stat="identity")+
        theme_minimal()+
        ggtitle("Emissions By Fuel Type for Transportation") +
-       scale_fill_manual(values=safe_pal)
+       scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
    }
  })
   
@@ -524,7 +525,7 @@ output$electric_power <- renderPlot({
   })
   
   output$plot_generation <- renderPlotly({
-    safe_pal <- c("#F7FBFF", "#DEEBF7", "#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B", "#2B15FC", "#0CA0FF", "#0465A3", "#75C9FF", "#055589")
+    safe_pal <- c("#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B", "#2B15FC", "#0CA0FF", "#0465A3", "#75C9FF", "#055589")
     names(safe_pal) <- unique(clean_power_generation_states$energy_source)
     ggplot(ggplot_electricity_generation(),
            aes(year, generation_megawatthours, fill=energy_source)) +
@@ -540,10 +541,20 @@ output$electric_power <- renderPlot({
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
             axis.line = element_line(colour = "black")) +
-      scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{unique(clean_power_generation_states$energy_source)}) 
+      scale_fill_manual(values=if(input$colorblind==T){safe_pal}else{pal}) 
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
-
   })
+  
+  
+  # Downloadable csv of selected dataset ----
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste(input$dataset, ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(datasetInput(), file, row.names = FALSE)
+    }
+  )
 
 }
 

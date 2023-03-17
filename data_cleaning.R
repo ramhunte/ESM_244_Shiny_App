@@ -101,10 +101,10 @@ filtered_sector[filtered_sector == 'Total Energy Consumed by the End-Use-Sectors
 #new column with yearly sum extracted
 filtered_sector$year <- as.numeric(substr(filtered_sector$YYYYMM, 1, 4))
 #filter and group to get total energy over sectors
-filtered_sector2 <- filtered_sector %>% 
-  clean_names() %>% 
+filtered_sector2 <- filtered_sector %>%
+  clean_names() %>%
   mutate(description = as.factor(description)) %>%
-  group_by(description, year) %>% 
+  group_by(description, year) %>%
   summarize(value)
 
 #############
@@ -138,10 +138,10 @@ emissions_persector_fuel[emissions_persector_fuel == 'Total carbon dioxide emiss
 
 emissions_persector_fuelb <- emissions_persector_fuel
 #########
-
 clean_power_generation_states <- power_generation_states %>%
   clean_names() %>%
-  filter(type_of_producer %in% "Total Electric Power Industry" & !energy_source %in% c("Total", "Other", "Other Gases", "Other Biomass")) %>%
+  filter(type_of_producer %in% "Total Electric Power Industry" & !energy_source %in% c("Total", "Other", "Other Gases", "Other Biomass") & !state %in% c("DC", "US-TOTAL")) %>%
   mutate(energy_source = as.factor(energy_source))
-  
-  
+#replace abbreviations with names
+clean_power_generation_states$state_name <- state.name[match(clean_power_generation_states$state, state.abb)]
+
