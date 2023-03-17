@@ -284,7 +284,7 @@ server <- function(input, output) {
                   label = ~pct_change,
                   stroke = T, color = "black") %>%
       addLegend("bottomright", pal = pal, values = date_emissions_total()$pct_change,
-                title = "% change in carbon <br>emissions</br>", labFormat = labelFormat(suffix = "MMT")) %>%
+                title = "% change in carbon <br>emissions</br>", labFormat = labelFormat(suffix = "%")) %>%
       setView(lng = -96.25, lat = 39.50, zoom = 4)
   })
   
@@ -301,7 +301,7 @@ server <- function(input, output) {
                   stroke = T, color = "black"
       ) %>%
       addLegend("bottomright", pal = pal, values = date_emissions_capita()$pct_change,
-                title = "% change in per capita <br>carbon emissions</br>", labFormat = labelFormat(suffix = "MT")) %>%
+                title = "% change in per capita <br>carbon emissions</br>", labFormat = labelFormat(suffix = "%")) %>%
       setView(lng = -96.25, lat = 39.50, zoom = 4)
   })
   
