@@ -32,6 +32,7 @@ ui <- dashboardPage(
                                menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
                                checkboxInput("colorblind", label="Enable colorblind assist")
                                ),
+                   
                    hr(),
                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
                   fluidRow(
@@ -130,6 +131,8 @@ ui <- dashboardPage(
 
 
 
+
+
 ########## SERVER ################
 server <- function(input, output) {
 st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>% 
@@ -206,6 +209,13 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
   ggplot_emissions_persector_fuelb <- reactive({
     emissions_persector_fuelb %>%
       subset(sector_name %in% input$pick_sector4b)
+  })
+  
+  
+  datasetInput <- reactive({
+    switch(input$dataset,
+           "state emissions" = states_emissions,
+           "sector emissions" = emissions_persector)
   })
 
 ######################
@@ -449,6 +459,8 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_losses()$sector)})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
+  
+  
   
 }
 
