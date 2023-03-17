@@ -481,7 +481,7 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
+        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
@@ -506,7 +506,7 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
+        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
@@ -531,7 +531,7 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
+        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
@@ -556,7 +556,7 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub Emissions (MMT)", fill= "Fuel Type")+
+        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
         geom_bar(position="stack", stat="identity")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
