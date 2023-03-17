@@ -265,7 +265,7 @@ server <- function(input, output) {
                   label = ~pct_change,
                   stroke = T, color = "black") %>%
       addLegend("bottomright", pal = pal, values = date_emissions_total()$pct_change,
-                title = "% change in carbon emissions", labFormat = labelFormat(suffix = "MMT")) %>%
+                title = "% change in carbon <br>emissions</br>", labFormat = labelFormat(suffix = "MMT")) %>%
       setView(lng = -96.25, lat = 39.50, zoom = 4)
   })
   
@@ -330,7 +330,7 @@ server <- function(input, output) {
   output$plot_percapemissions_state <- renderPlotly({
     shiny::validate(need(input$percapemissions_shape_click$id, "Click on state to generate plot"))
     ggplot(data=ggplot_percapstate_data(), 
-           aes(period, value)) + 
+           aes(period, emissions_per_capita_value)) + 
       geom_line(size=1) +
       geom_point(size=2)+
       theme_minimal()+
