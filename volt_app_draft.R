@@ -152,10 +152,29 @@ dashboardBody(
                 p(h4("Particular aspects of the transportation sector are notoriously difficult to decarbonize, as more than a third of emissions comes from heavy transport 
                   from trucks and freight aircraft, as well as heat-intensive material manufacturing. Electric power generation as well is a large contributor to emissions, 
                   however this is dependent on the grid mix used in the state, meaning the fuel composition used in power plants to produce electricity.")))),
+    # Widget 3
     tabItem(tabName = "energy_use_by_sector",
             box(width=NULL, status="primary", solidHeader=T, title="Energy Use by Sector", withSpinner(plotlyOutput("plot_sector_energy"))),
             br(),
-            box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses")))),
+            box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses"))),
+            br(),
+            box(width=NULL, status="primary", solidHeader=T, title = "Quick Facts",
+                p(h4("The plot shows the energy use (in trillion BTUs) of the commercial, industrial, and transportation sectors, which have been steadily 
+increasing since 1970, with a tapering off since 2005. This plateau can be attributed to improvements in energy efficiency and the 
+shift towards renewable energies such as solar and wind power, as well as policies that reduce energy use, such as building codes and
+energy efficiency standards for appliances and equipment.")),
+                
+                p(h4("The impact of COVID-19 on energy consumption is evident in all sectors, with transportation suffering the most. A drop in energy 
+consumption is also visible during the 2008 economic recession.")),
+                
+                p(h4("The bottom graph illustrates the proportion of energy lost in comparison to how much energy was used, with a decreasing trend in 
+both commercial and industrial sectors, which can be attributed to energy efficiency standards from public policies. The transportation
+sector is relatively insignificant when compared to other sectors, but its trend can be isolated.")),
+                
+                p(h4("Overall, public policies such as the American Recovery and Reinvestment Act of 2009 have invested in renewable energy and energy 
+efficiency, as well as the modernization of the electric grid and other energy infrastructure, contributing to the decrease in 
+energy loss and the shift towards renewable energies.")))),    
+    
     #widget 4
     tabItem(tabName = "emissions_persector_fuel",
             box(width=NULL, status="primary", solidHeader=T, title="Emissions by Sector and Fuel Type", withSpinner(uiOutput("plot_emissions_persector_fuel"))),
@@ -409,6 +428,7 @@ server <- function(input, output) {
     ggplot(data=ggplot_sector_data2(),
            aes(year, value, color = description))+
       theme_minimal()+
+      scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
       geom_point(size=2) + 
       geom_line(size=1)+
       theme(legend.key.size = unit(2, 'cm'), 
