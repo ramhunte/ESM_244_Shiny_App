@@ -481,8 +481,9 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
-        geom_bar(position="stack", stat="identity")+
+        labs(fill= "Fuel Type")+
+        xlab("Year")+
+        ylab("CO2 Emissions (MMT)")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
               legend.title = element_text(size=14, face="bold"), 
@@ -506,8 +507,9 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
-        geom_bar(position="stack", stat="identity")+
+        labs(fill= "Fuel Type")+
+        xlab("Year")+
+        ylab("CO2 Emissions (MMT)")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
               legend.title = element_text(size=14, face="bold"), 
@@ -531,8 +533,9 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
-        geom_bar(position="stack", stat="identity")+
+        labs(fill= "Fuel Type")+
+        xlab("Year")+
+        ylab("CO2 Emissions (MMT)")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
               legend.title = element_text(size=14, face="bold"), 
@@ -556,8 +559,9 @@ server <- function(input, output) {
         ggplot(aes(period, total, fill=fuel_name)) +
         geom_col()+
         scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
-        labs(x="Year", y="CO<sub>2</sub> Emissions (MMT)", fill= "Fuel Type")+
-        geom_bar(position="stack", stat="identity")+
+        labs(fill= "Fuel Type")+
+        xlab("Year")+
+        ylab("CO2 Emissions (MMT)")+
         theme_minimal()+
         theme(legend.key.size = unit(2, 'cm'),
               legend.title = element_text(size=14, face="bold"), 
