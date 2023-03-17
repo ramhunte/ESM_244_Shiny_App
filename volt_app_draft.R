@@ -34,8 +34,15 @@ ui <- dashboardPage(
                                         menuSubItem("National Scale", tabName= "emissions_persector_fuel", icon = icon("chart-column"))),
                                menuItem("Energy Use by Sector", icon = icon("line-chart"), tabName="energy_use_by_sector"),
                                menuItem("Energy Generation by State", icon=icon("line-chart"), tabName="elec_generation"),
-                               checkboxInput("colorblind", label="Enable colorblind assist")
-                               ),
+                               checkboxInput("colorblind", label="Enable colorblind assist"),
+                               
+                               
+                               #data download
+                               selectInput("dataset", "Choose a dataset:",
+                                           choices = "emissions data"),
+                               downloadButton("downloadData", "Download")),
+                                mainPanel(tableOutput("table")),
+                   
                    
                    hr(),
                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
@@ -246,13 +253,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     clean_power_generation_states  %>%
       clean_names() %>%
       filter(state %in% input$pick_state2)
-  })
-  
-  
-  datasetInput <- reactive({
-    switch(input$dataset,
-           "state emissions" = states_emissions,
-           "sector emissions" = emissions_persector)
+
   })
 
 #########OUTPUTS#############
@@ -553,6 +554,53 @@ output$electric_power <- renderPlot({
 
   })
 
+  
+  ####3####data downlad
+  
+  datasetInput <- reactive({
+    switch(input$dataset,
+           "emissions data" = emissions_complete_data)
+  })
+
+  output$table <- renderTable({
+    datasetInput()
+  })
+
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste(input$dataset, ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(datasetInput(), file, row.names = FALSE)
+    }
+  )
+
+ ########## 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
 
 # Run the application 
