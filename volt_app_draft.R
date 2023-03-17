@@ -93,7 +93,7 @@ dashboardBody(
     tabItem(tabName = "about", 
             box(width=NULL,
                 h2(strong("About This Shiny App")),
-                p(h4("This Shiny app explores energy usage across time by both sector and state throughout the United States. 
+                p(h4("This Shiny app explores fuel emissions, energy usage, and energy genration over time by both sector and state throughout the United States. 
                 All energy usage data was recorded from 1970 to 2020 across a variety of different sectors, including the industrial, 
                 commerical, electric power, and transportation sectors.
                 Emissions are presented in million metric tons of CO2 (MMT), and metric tons (MT). Specific fuels explored here are petroleum, 
