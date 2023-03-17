@@ -154,9 +154,16 @@ ui <- dashboardPage(
         box(width=NULL, status="primary", solidHeader=T, title="Proportion Electrical System Losses to Total Energy Use", withSpinner(plotlyOutput("plot_losses")))),
       #widget 4
       tabItem(tabName = "emissions_persector_fuel",
-        box(width=NULL, status="primary", solidHeader=T, title="Emissions by Sector and Fuel Type", withSpinner(uiOutput("plot_emissions_persector_fuel")))),
+        box(width=NULL, status="primary", solidHeader=T, title="Emissions by Sector and Fuel Type", withSpinner(uiOutput("plot_emissions_persector_fuel"))),
+        box(width=NULL, status="primary", solidHeader = T, title="Quick Facts", 
+            p(h4("This tab explores the emissions of different fuel types by each sector from 1970-2020. Some of the notable trends are that coal emissions or electrical power 
+                 peaked at about 2008 and have slowly decreased as natural gas emissions increased. Natural gas emissions are the most abundant for the commercial sector, and 
+                 petroleum emissions dominate the transportation sector. ")))),
       tabItem(tabName="elec_generation",
-              box(width=NULL, status="primary", solidHeader=T, title="Electricity Generation by State", withSpinner(plotlyOutput("plot_generation"))))
+              box(width=NULL, status="primary", solidHeader=T, title="Electricity Generation by State", withSpinner(plotlyOutput("plot_generation"))),
+              box(width=NULL, status="primary", solidHeader = T, title="Quick Facts", 
+                  p(h4("Text")))
+              )
     ))
 )
 
@@ -319,6 +326,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       xlab("Year") +
       ggtitle(paste("Gross Change CO<sub>2</sub> Emissions Over Time For", input$totalemissions_shape_click$id)) + 
       scale_x_continuous(breaks=seq(input$rangeyears[1], input$rangeyears[2], 5)) + 
+      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
       theme(plot.title = element_text(size=22))
     ggplotly()
   })
@@ -368,7 +376,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       labs(color = "Sector")+
       ylab("CO<sub>2</sub> emissions (MMT)") +
       xlab("Year") + 
-      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_emissions_sector_data()$sector_name)})
+      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
 
@@ -395,7 +403,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       labs(color = "Fuel Type") +
       ylab("CO<sub>2</sub> emissions (MMT)") +
       xlab("Year") + 
-        scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_fuel_data()$fuel_name)})
+     scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
      ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
   
@@ -404,9 +412,9 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     names(safe_pal) <- unique(ggplot_sector_data2()$description)
     ggplot(data=ggplot_sector_data2(),
            aes(year, value, color = description))+
+      theme_minimal()+
       geom_point(size=2) + 
       geom_line(size=1)+
-      theme_minimal()+
       theme(legend.key.size = unit(2, 'cm'), 
             legend.title = element_text(size=14, face="bold"), 
             legend.text = element_text(size=12),
@@ -420,7 +428,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       ylab("Energy use (trillion BTU)") +
       xlab("Year")+
       expand_limits(y = 0) +
-      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_data2()$description)})
+      scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
     
   })
@@ -446,7 +454,7 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
       labs(color = "Sector")+
       ylab("Proportion losses") +
       xlab("Year")+
-    scale_color_manual(values=if(input$colorblind==T){safe_pal}else{unique(ggplot_sector_losses()$sector)})
+    scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
   })
   
