@@ -55,9 +55,7 @@ ui <- dashboardPage(
                    fluidRow(
                      column(1),
                      column(10,
-                            selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name)),
-                            selectInput("dataset", label = "Choose a dataset:",
-                                        choices = c("Emissions by Fuel", "Emissions by Sector"))))),
+                            selectInput("pick_state", label="Select state", selected = "California", choices =  unique(emissions_total_allsectors$state_name))))),
   
   conditionalPanel("input.sidebarid == 'emissions_persector_fuel'",
                    fluidRow(
