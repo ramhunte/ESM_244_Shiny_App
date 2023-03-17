@@ -36,6 +36,7 @@ ui <- dashboardPage(
                                menuItem("Energy Generation by State", icon=icon("line-chart"), tabName="elec_generation"),
                                checkboxInput("colorblind", label="Enable colorblind assist")
                                ),
+                   
                    hr(),
                   conditionalPanel("input.sidebarid == 'totalemissions_map_plot'",
                   fluidRow(
@@ -161,6 +162,8 @@ ui <- dashboardPage(
 
 
 
+
+
 ########## SERVER ################
 server <- function(input, output) {
 st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>% 
@@ -236,6 +239,13 @@ st <- read_sf(here( "cb_2021_us_state_500k", "cb_2021_us_state_500k.shp")) %>%
     clean_power_generation_states  %>%
       clean_names() %>%
       filter(state %in% input$pick_state2)
+  })
+  
+  
+  datasetInput <- reactive({
+    switch(input$dataset,
+           "state emissions" = states_emissions,
+           "sector emissions" = emissions_persector)
   })
 
 #########OUTPUTS#############
@@ -534,6 +544,7 @@ output$electric_power <- renderPlot({
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
 
   })
+
 }
 
 # Run the application 
