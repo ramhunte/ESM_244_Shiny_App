@@ -5,6 +5,7 @@ library(janitor)
 library(tidyverse)
 library(dplyr)
 library(lubridate)
+library(gridExtra)
 
 ### generate data
 # path <- fromJSON("https://api.eia.gov/v2/co2-emissions/co2-emissions-aggregates/data/?frequency=annual&data[0]=value&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000&api_key=mdOP5PhYCWMt6IrK7c2qcDCslb7MrPpyNahheLlF")
@@ -46,6 +47,8 @@ emissions_total_allsectors <- emissions_complete_data %>%
                     summarise(across(c(value, emissions_per_capita_value)))
 #cumulative CO2 emissions from all fuels for every state per year
 emissions_all_fuels <- emissions_total_allsectors %>% filter(fuel_name %in% "All Fuels")
+avg <- emissions_all_fuels %>% group_by(period) %>% summarise(national_avg = mean(value))
+emissions_all_fuels <- inner_join(emissions_all_fuels, avg)
 
 #CO2 emissions by state, sector, and year
 emissions_persector <- emissions_complete_data %>%
@@ -101,7 +104,7 @@ filtered_sector$year <- as.numeric(substr(filtered_sector$YYYYMM, 1, 4))
 filtered_sector2 <- filtered_sector %>% 
   clean_names() %>% 
   mutate(description = as.factor(description)) %>%
-  group_by(description, value, year) %>% 
+  group_by(description, year) %>% 
   summarize(value)
 
 #############
@@ -109,10 +112,13 @@ filtered_sector2 <- filtered_sector %>%
 
 # A. Wrangle Data
 emissions_persector_fuel <- emissions_complete_data %>% 
-  select(period, sector_id, sector_name, fuel_name, value, value_units)
+  select(period, sector_name, fuel_name, value, value_units) %>%
+  mutate(fuel_name = as.factor(fuel_name)) %>%
+  group_by(period, sector_name, fuel_name) %>%
+  summarize(total = sum(value))
 
 # B. Exploratory plot
-plot_w4 <- ggplot(data=emissions_persector_fuel, aes(x=period, y=value, fill=fuel_name)) +
+plot_w4 <- ggplot(data=emissions_persector_fuel, aes(x=period, y=total, fill=fuel_name)) +
   labs(x="Year", y="CO2 Emissions (MMT)", fill= "Fuel Type")+
   scale_y_continuous(labels = function(x) paste0(x/1000, " k"))+
   geom_col()+
@@ -121,14 +127,21 @@ plot_w4 <- ggplot(data=emissions_persector_fuel, aes(x=period, y=value, fill=fue
 plot_w4
 
 # C. Rename Sectors
-emissions_persector_fuel[emissions_persector_fuel == 'Residential carbon dioxide emissions'] <- 'Residential'
-emissions_persector_fuel[emissions_persector_fuel == 'Industrial carbon dioxide emissions'] <- 'Industrial'
-emissions_persector_fuel[emissions_persector_fuel == 'Electric Power carbon dioxide emissions'] <- 'Electric Power'
-emissions_persector_fuel[emissions_persector_fuel == 'Transportation carbon dioxide emissions'] <- 'Transportation'
-emissions_persector_fuel[emissions_persector_fuel == 'Commercial carbon dioxide emissions'] <- 'Commercial'
-emissions_persector_fuel[emissions_persector_fuel == 'Total carbon dioxide emissions from all sectors'] <- 'All sectors'
+emissions_persector_fuel[emissions_persector_fuel == 'Residential carbon dioxide emissions'] <- 'residential'
+emissions_persector_fuel[emissions_persector_fuel == 'Industrial carbon dioxide emissions'] <- 'industrial'
+emissions_persector_fuel[emissions_persector_fuel == 'Electric Power carbon dioxide emissions'] <- 'electric_power'
+emissions_persector_fuel[emissions_persector_fuel == 'Transportation carbon dioxide emissions'] <- 'transportation'
+emissions_persector_fuel[emissions_persector_fuel == 'Commercial carbon dioxide emissions'] <- 'commercial'
+emissions_persector_fuel[emissions_persector_fuel == 'Total carbon dioxide emissions from all sectors'] <- 'all_sectors'
 
 # D. Duplicate data
 
 emissions_persector_fuelb <- emissions_persector_fuel
 #########
+
+clean_power_generation_states <- power_generation_states %>%
+  clean_names() %>%
+  filter(type_of_producer %in% "Total Electric Power Industry" & !energy_source %in% c("Total", "Other", "Other Gases", "Other Biomass")) %>%
+  mutate(energy_source = as.factor(energy_source))
+  
+  
