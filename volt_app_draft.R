@@ -441,7 +441,7 @@ server <- function(input, output) {
             panel.background = element_blank(),
             axis.line = element_line(colour = "black"))+
       labs(color = "Sector")+
-      ylab("Energy use (trillion BTU)") +
+      ylab("Energy Use (trillion BTU)") +
       xlab("Year")+
       expand_limits(y = 0) +
       scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
@@ -467,7 +467,7 @@ server <- function(input, output) {
             panel.background = element_blank(),
             axis.line = element_line(colour = "black")) +
       labs(color = "Sector")+
-      ylab("Proportion losses") +
+      ylab("Proportion Losses") +
       xlab("Year")+
       scale_color_manual(values=if(input$colorblind==T){safe_pal}else{c("#1f77b4","black",  "#d62728", "#2ca02c")})
     ggplotly() %>% layout(hoverlabel=list(bgcolor="white"))
