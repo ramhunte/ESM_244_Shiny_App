@@ -38,10 +38,13 @@ ui <- dashboardPage(
                                
                                
                                #data download
+                              
                                selectInput("dataset", "Choose a dataset:",
                                            choices = "emissions data"),
                                downloadButton("downloadData", "Download")),
-                                mainPanel(tableOutput("table")),
+                              
+                   
+                 #  mainPanel(tableOutput("table")),
                    
                    
                    hr(),
